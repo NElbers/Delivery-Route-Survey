@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Orchard Hill Breadworks — Driver Route Survey</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Georgia',serif;background:#faf9f7;color:#1a1a1a;min-height:100vh;padding:1rem}
+h1{font-family:'Georgia',serif;font-size:1.4rem;font-weight:normal;letter-spacing:0.02em;color:#2c1810;margin-bottom:2px}
+.brand{font-size:11px;color:#8a7060;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:1.5rem}
+.page{display:none}
+.page.active{display:block}
+.card{background:#fff;border:1px solid #e8e0d8;border-radius:8px;padding:1rem 1.25rem;margin-bottom:12px}
+.stop-row{background:#fff;border:1px solid #e8e0d8;border-radius:6px;padding:10px 12px;margin-bottom:8px;cursor:grab;display:flex;align-items:center;gap:10px;user-select:none;transition:box-shadow 0.15s}
+.stop-row:hover{box-shadow:0 2px 8px rgba(0,0,0,0.08)}
+.stop-row.seasonal-row{border-left:3px solid #EF9F27}
+.stop-row.shipped-row{border-left:3px solid #7C5CBF}
+.stop-row.not-on-route{border-left:3px solid #e05c5c;opacity:0.55;cursor:default}
+.stop-row.added-row{border-left:3px solid #1D9E75}
+.stop-row.dragging{opacity:0.4;cursor:grabbing}
+.stop-row.drag-over{border-color:#4a90d9;background:#f0f6ff}
+.stop-num{background:#f0ece8;border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;flex-shrink:0;color:#6b5a4e}
+.stop-num.seasonal-num{background:#FAEEDA;color:#854F0B}
+.stop-num.added-num{background:#E1F5EE;color:#0F6E56}
+.stop-num.shipped-num{background:#EDE9F7;color:#4A2D8A}
+.stop-name{flex:1;font-size:14px;color:#1a1a1a}
+.stop-name.struck{text-decoration:line-through;color:#aaa}
+.badge{display:inline-block;border-radius:4px;padding:1px 7px;font-size:11px;margin-left:6px;font-family:sans-serif}
+.badge-seasonal{background:#FAEEDA;color:#854F0B}
+.badge-added{background:#E1F5EE;color:#0F6E56}
+.badge-not{background:#fde8e8;color:#c0392b}
+.badge-shipped{background:#EDE9F7;color:#4A2D8A}
+.badge-done{background:#e6f4ea;color:#1e7e34}
+.expand-btn{background:none;border:none;cursor:pointer;color:#8a7060;font-size:18px;padding:0 4px;line-height:1}
+.detail-panel{display:none;margin-top:10px;padding-top:10px;border-top:1px solid #f0ece8}
+.detail-panel.open{display:block}
+.field-row{margin-bottom:12px}
+.field-label{font-size:12px;color:#6b5a4e;margin-bottom:4px;font-family:sans-serif}
+.field-row input[type=text],.field-row textarea{width:100%;font-size:13px;border:1px solid #d8d0c8;border-radius:5px;padding:7px 10px;background:#faf9f7;font-family:sans-serif;color:#1a1a1a}
+.field-row input[type=text]:focus,.field-row textarea:focus{outline:none;border-color:#8a7060;background:#fff}
+.field-row textarea{height:70px;resize:vertical}
+.toggle-group{display:flex;gap:8px;flex-wrap:wrap}
+.tog{background:#f0ece8;border:1px solid #d8d0c8;border-radius:5px;padding:5px 12px;font-size:12px;cursor:pointer;color:#6b5a4e;font-family:sans-serif;transition:all 0.15s}
+.tog:hover{background:#e8e0d8}
+.tog.sel{background:#2c1810;border-color:#2c1810;color:#fff}
+.tog.sel-amber{background:#FAEEDA;border-color:#EF9F27;color:#854F0B}
+.tog.sel-danger{background:#fde8e8;border-color:#e05c5c;color:#c0392b}
+.tog.sel-purple{background:#EDE9F7;border-color:#7C5CBF;color:#4A2D8A}
+.season-range{margin-top:8px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.season-range input{font-size:13px;border:1px solid #d8d0c8;border-radius:5px;padding:6px 10px;background:#faf9f7;font-family:sans-serif}
+.btn{border:1px solid #d8d0c8;border-radius:6px;background:#fff;padding:9px 18px;font-size:13px;cursor:pointer;color:#2c1810;font-family:'Georgia',serif;transition:all 0.15s}
+.btn:hover{background:#f0ece8;border-color:#8a7060}
+.btn-primary{background:#2c1810;border-color:#2c1810;color:#fff}
+.btn-primary:hover{background:#3d2416;border-color:#3d2416}
+.btn-primary:disabled{background:#8a7060;border-color:#8a7060;cursor:not-allowed}
+.btn-green{background:#e6f4ea;border-color:#1D9E75;color:#0F6E56}
+.btn-green:hover{background:#d0edda}
+.add-stop-form{background:#f0fdf4;border:1px solid #bbf0d8;border-radius:6px;padding:12px;margin-bottom:8px;display:none}
+.add-stop-form.open{display:block}
+.selector-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(145px,1fr));gap:10px;margin-top:1rem}
+.sel-card{background:#fff;border:1px solid #e8e0d8;border-radius:8px;padding:1rem;cursor:pointer;text-align:center;transition:all 0.15s}
+.sel-card:hover{border-color:#8a7060;box-shadow:0 2px 12px rgba(44,24,16,0.1);transform:translateY(-1px)}
+.sel-card .day-label{font-size:10px;color:#8a7060;letter-spacing:0.06em;text-transform:uppercase;margin-bottom:4px;font-family:sans-serif}
+.sel-card .route-label{font-size:16px;font-weight:normal;color:#2c1810}
+.sel-card .count-label{font-size:11px;color:#aaa;margin-top:4px;font-family:sans-serif}
+.progress{font-size:12px;color:#8a7060;margin-bottom:1rem;font-family:sans-serif}
+h2{font-size:17px;font-weight:normal;color:#2c1810;margin-bottom:4px}
+p.sub{font-size:13px;color:#8a7060;margin-bottom:1rem;font-family:sans-serif}
+.toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);background:#2c1810;color:#fff;padding:10px 20px;border-radius:6px;font-size:13px;font-family:sans-serif;z-index:999;opacity:0;transition:opacity 0.3s;pointer-events:none;white-space:nowrap}
+.toast.show{opacity:1}
+.divider{border:none;border-top:1px solid #f0ece8;margin:1rem 0}
+.flag-item{font-size:12px;margin-bottom:4px;font-family:sans-serif}
+.section-head{font-size:11px;font-weight:600;margin-bottom:10px;font-family:sans-serif;letter-spacing:0.05em;text-transform:uppercase}
+.detail-grid{display:grid;grid-template-columns:max-content 1fr;gap:2px 16px;margin-top:4px;font-size:12px;font-family:sans-serif}
+.detail-grid .lbl{color:#8a7060;white-space:nowrap}
+.special-item{margin-bottom:12px}
+</style>
+</head>
+<body>
+
+<div style="max-width:640px;margin:0 auto;padding-bottom:3rem">
+  <h1>Driver Route Survey</h1>
+  <div class="brand">Orchard Hill Breadworks</div>
+
+  <div id="page-home" class="page active">
+    <p class="sub">Select your route and delivery day to get started.</p>
+    <div class="selector-grid" id="route-selector"></div>
+  </div>
+
+  <div id="page-survey" class="page">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+      <h2 id="survey-title"></h2>
+      <button class="btn" onclick="showPage('home')" style="font-size:12px;padding:5px 12px">← Back</button>
+    </div>
+    <p class="sub" id="survey-sub"></p>
+    <div class="card" style="background:#faf9f7;margin-bottom:16px">
+      <p style="font-size:13px;color:#6b5a4e;font-family:sans-serif"><strong style="color:#2c1810">Step 1:</strong> Drag stops into the order you drive them, top to bottom.</p>
+      <p style="font-size:13px;color:#6b5a4e;margin-top:6px;font-family:sans-serif"><strong style="color:#2c1810">Step 2:</strong> Tap ▾ on each stop to fill in the details. Mark seasonal, shipped, or not-on-route where needed.</p>
+      <p style="font-size:13px;color:#6b5a4e;margin-top:6px;font-family:sans-serif"><strong style="color:#2c1810">Step 3:</strong> Use "Add stop" at the bottom if a stop is missing from your list.</p>
+    </div>
+    <div class="progress" id="survey-progress"></div>
+    <div id="stop-list"></div>
+    <div id="add-stop-form" class="add-stop-form">
+      <div style="font-size:13px;font-weight:600;color:#0F6E56;margin-bottom:10px;font-family:sans-serif">+ Add a missing stop</div>
+      <div class="field-row"><div class="field-label">Stop name</div><input type="text" id="new-stop-name" placeholder="e.g. Green Mountain Co-op"></div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-green" onclick="confirmAddStop()" style="font-size:13px;padding:7px 14px">Add to route</button>
+        <button class="btn" onclick="toggleAddForm()" style="font-size:13px;padding:7px 14px">Cancel</button>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;align-items:center">
+      <button class="btn btn-primary" id="submit-btn" onclick="submitSurvey()">✓ Submit route</button>
+      <button class="btn btn-green" onclick="toggleAddForm()">+ Add stop</button>
+      <span id="saving-indicator" style="font-size:12px;color:#8a7060;font-family:sans-serif;display:none">Saving…</span>
+    </div>
+  </div>
+
+  <div id="page-thanks" class="page">
+    <div style="text-align:center;padding:3rem 1rem">
+      <div style="font-size:52px">✓</div>
+      <h2 style="margin-top:1rem;font-size:20px">Route submitted!</h2>
+      <p style="margin-top:8px;font-size:14px;color:#8a7060;font-family:sans-serif">Your responses have been saved. Thank you!</p>
+      <div style="margin-top:2rem;display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+        <button class="btn" onclick="showPage('home')">Back to routes</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+const SCRIPT_URL='https://script.google.com/macros/s/AKfycbxZQca_7MCVi2vbRyN5cUaX6fBvYYKQQ9phdQzSIhNLElouXpzVxS9PBcdbRpKv3roDSQ/exec';
+
+const ROUTES={
+  "Tuesday":{
+    "1":["Food Connects","The Porch","Wild Carrot Farm","Amy's Cafe","Walpole Grocery","Harlow Farm Stand","Watkins Inn & Tavern","Putney Food Co-op","Putney Diner","Brattleboro Food Co-op","Walker Farm","Putney General Store","Scott Farm","Maple Coffee Company","BFC Catering","Milkweed Farm"],
+    "2":["Springfield Food Co-op","Saxton's River Village Market","Ralph's Supermarket","Hemingway Farm","Lisai's","Alstead General Store","Brownsville Butcher & Pantry","Reading Greenhouse & Farm","Whittaker's Homestead","Pete's Farm Stand","The Hungry Diner","Cafe Loco","Drewsville General Store"],
+    "3":["TWCF","Fiddleheads Cafe","Aesop's Table","Nature's Green Grocer","Hancock Market","Roy's Market","Rosaly's Garden","The Optimist Cafe","MacDowell","Ben's Sugar Shack","Aaron's Specialty","Mill Village Store","Sophia's Hearth","Harrisville General Store","Wild Rose Farm"],
+    "4":["Badger Balm","A Simply Wholesome Life","Debra's Natural Gourmet","Spice & Grain","Brewbaker's Cafe","Dog Days Farm","Camp Glen Brook","Monadnock Food Co-op","Jenna's Market","Sullivan Country Store","Archway Farm","Gilsum Village Store"],
+    "PU":["Keene Community Kitchen","Acworth Village Store","Brookford Farm","Farm Stand"]
+  },
+  "Thursday":{
+    "1":["TJ Buckley's","Food Connects","The Porch","Wild Carrot Farm","Amy's Cafe","Farmhouse Market","Village Roost Deli","Walpole Grocery","Harlow Farm Stand","Watkins Inn & Tavern","Putney Food Co-op","Putney Diner","Brattleboro Food Co-op","Walker Farm","Putney General Store","Scott Farm","Maple Coffee Company","BFC Catering","Milkweed Farm"],
+    "2":["Springfield Food Co-op","Hemingway Farm","Lisai's","Alstead General Store","Southern Pie Co","Smitty's Chester Market","Brownsville Butcher & Pantry","Moon Dog Cafe","The Weston","Reading Greenhouse & Farm","Singleton's Market","Whittaker's Homestead","Blue Duck Deli","Stemwinder","Harlow Winter CSA"],
+    "3":["Fiddleheads Cafe","Aesop's Table","Nature's Green Grocer","Hancock Market","Roy's Market","Rosaly's Garden","The Optimist Cafe","MacDowell","Ben's Sugar Shack","Aaron's Specialty","Mill Village Store","Sophia's Hearth","Harrisville General Store","Badger Balm","Brewbaker's Cafe","Dog Days Farm","Camp Glen Brook","Monadnock Food Co-op","Jenna's Market","Sullivan Country Store","Archway Farm","Gilsum Village Store"],
+    "4":["Pete's Farm Stand","The Hungry Diner","Cafe Loco","Drewsville General Store"],
+    "PU":["Keene Community Kitchen","Acworth Village Store","Brookford Farm","Farm Stand"]
+  },
+  "Saturday":{
+    "1":["Brattleboro Farmer's Market","The Porch","Wild Carrot Farm","Amy's Cafe","Humble Mug","Harlow Winter CSA"],
+    "2":["Walpole Grocery","Harlow Farm Stand","Watkins Inn & Tavern","Springfield Food Co-op","Saxton's River Village Market","Ralph's Supermarket","Hemingway Farm","Lisai's","Alstead General Store","Whittaker's Homestead","Pete's Farm Stand","The Hungry Diner","Cafe Loco","Drewsville General Store"],
+    "3":["Putney Food Co-op","Putney Diner","Brattleboro Food Co-op","Walker Farm","Putney General Store","Scott Farm","Maple Coffee Company","BFC Catering","Milkweed Farm"],
+    "4":["TWCF","Fiddleheads Cafe","Aesop's Table","Nature's Green Grocer","Hancock Market","Roy's Market","Rosaly's Garden","The Optimist Cafe","MacDowell","Ben's Sugar Shack","Aaron's Specialty","Mill Village Store","Lukas Community ALL","Wild Rose Farm","Temple General Store"],
+    "5":["Farmer's Market of Keene"],
+    "6":["Sophia's Hearth","Harrisville General Store","Brewbaker's Cafe","Dog Days Farm","Camp Glen Brook","Monadnock Food Co-op","Jenna's Market","Sullivan Country Store","Archway Farm","Gilsum Village Store","Dublin General Store"],
+    "PU":["Keene Community Kitchen","Acworth Village Store","Brookford Farm","Farm Stand"]
+  }
+};
+
+const DELIVERY_FIELDS=[
+  {key:"parking",label:"Where to park",type:"text",placeholder:"e.g. Pull into loading dock on north side"},
+  {key:"door",label:"Which door to use",type:"text",placeholder:"e.g. Back entrance, ring bell"},
+  {key:"stocked",label:"Do you stock shelves?",type:"toggle",options:["Yes","No","Sometimes"]},
+  {key:"signin",label:"Does a manager sign the invoice?",type:"toggle",options:["Yes","No","Sometimes"]},
+  {key:"payment",label:"Do they pay on delivery?",type:"toggle",options:["Yes — cash","Yes — check","No — invoiced","Sometimes"]},
+  {key:"buyback",label:"Do you buy back their day-olds?",type:"toggle",options:["Yes","No","Sometimes"]},
+  {key:"notes",label:"Notes, quirks & contacts",type:"textarea",placeholder:"e.g. Ask for Sarah at the front desk. Ring the bell twice. They sometimes pay in cash so have change ready."}
+];
+const SHIPPED_FIELDS=[
+  {key:"ship_notes",label:"Notes, quirks & contacts",type:"textarea",placeholder:"e.g. Drop at receiving desk, ask for Tom. They take it from there."}
+];
+const PU_FIELDS=[
+  {key:"pu_location",label:"Where to pick up",type:"text",placeholder:"e.g. Side door, ask for Maria"},
+  {key:"pu_what",label:"What are you picking up?",type:"text",placeholder:"e.g. Day-old bread trays"},
+  {key:"pu_payment",label:"Do you pay them?",type:"toggle",options:["Yes — cash","Yes — check","No","Sometimes"]},
+  {key:"pu_notes",label:"Notes, quirks & contacts",type:"textarea",placeholder:"e.g. Ask for James. They usually have it ready by the back door."}
+];
+
+let currentDay="",currentRoute="",stopOrder=[],stopData={},submittedRoutes={};
+
+function showPage(id){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById('page-'+id).classList.add('active');}
+function showToast(msg,duration=3500){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),duration);}
+
+function buildSelector(){
+  const el=document.getElementById('route-selector');el.innerHTML='';
+  ["Tuesday","Thursday","Saturday"].forEach(day=>{
+    const keys=Object.keys(ROUTES[day]).sort((a,b)=>{if(a==='PU')return 1;if(b==='PU')return -1;return parseInt(a)-parseInt(b);});
+    keys.forEach(r=>{
+      const key=day+'-'+r,done=submittedRoutes[key];
+      const label=r==='PU'?'Pickups':'Route '+r;
+      const div=document.createElement('div');div.className='sel-card';
+      div.innerHTML=`<div class="day-label">${day}</div><div class="route-label">${label}</div><div class="count-label">${ROUTES[day][r].length} stops${done?' · <span style="color:#1e7e34">✓ submitted</span>':''}`;
+      div.onclick=()=>startSurvey(day,r);el.appendChild(div);
+    });
+  });
+}
+
+function isPU(){return currentRoute==='PU';}
+
+function startSurvey(day,route){
+  currentDay=day;currentRoute=route;
+  stopOrder=[...ROUTES[day][route]];stopData={};
+  document.getElementById('add-stop-form').classList.remove('open');
+  const label=route==='PU'?'Pickups':'Route '+route;
+  document.getElementById('survey-title').textContent=day+' — '+label;
+  document.getElementById('survey-sub').textContent=stopOrder.length+' stops · Drag to reorder, then fill in details.';
+  const btn=document.getElementById('submit-btn');btn.textContent='✓ Submit route';btn.disabled=false;
+  renderStops();showPage('survey');
+}
+
+function getStopType(stop){
+  const d=stopData[stop];if(!d)return isPU()?'pu':'delivery';
+  if(d.not_on_route)return'not';
+  if(d.stop_type==='shipped')return'shipped';
+  if(isPU())return'pu';
+  if(d.seasonal==='Seasonal')return'seasonal';
+  return'delivery';
+}
+
+function renderStops(){
+  const list=document.getElementById('stop-list');list.innerHTML='';
+  const active=stopOrder.filter(s=>!stopData[s]||!stopData[s].not_on_route);
+  const done=active.filter(s=>isComplete(s)).length;
+  const notCount=stopOrder.length-active.length;
+  const addedCount=stopOrder.filter(s=>stopData[s]&&stopData[s].driver_added).length;
+  let prog=done+' of '+active.length+' stops filled in';
+  if(notCount)prog+=' · <span style="color:#c0392b">'+notCount+' flagged</span>';
+  if(addedCount)prog+=' · <span style="color:#0F6E56">'+addedCount+' added</span>';
+  document.getElementById('survey-progress').innerHTML=prog;
+  let num=0;
+  stopOrder.forEach(stop=>{
+    const type=getStopType(stop);const notOn=type==='not';
+    if(!notOn)num++;
+    const div=document.createElement('div');
+    let rowClass='stop-row';
+    if(notOn)rowClass+=' not-on-route';
+    else if(type==='shipped')rowClass+=' shipped-row';
+    else if(type==='seasonal')rowClass+=' seasonal-row';
+    if(stopData[stop]&&stopData[stop].driver_added&&!notOn)rowClass+=' added-row';
+    div.className=rowClass;div.draggable=!notOn;div.dataset.stop=stop;
+    let numClass='stop-num';
+    if(type==='shipped')numClass+=' shipped-num';
+    else if(type==='seasonal')numClass+=' seasonal-num';
+    else if(stopData[stop]&&stopData[stop].driver_added)numClass+=' added-num';
+    let badges='';
+    if(notOn)badges+='<span class="badge badge-not">not on route</span>';
+    else if(type==='shipped')badges+='<span class="badge badge-shipped">shipped</span>';
+    else if(type==='seasonal'){const d=stopData[stop]||{};const r=d.season_start&&d.season_end?' '+d.season_start+'–'+d.season_end:'';badges+='<span class="badge badge-seasonal">seasonal'+r+'</span>';}
+    if(stopData[stop]&&stopData[stop].driver_added)badges+='<span class="badge badge-added">added</span>';
+    if(isComplete(stop)&&!notOn)badges+='<span class="badge badge-done">✓</span>';
+    div.innerHTML='<span style="color:#c8b8a8;font-size:18px;flex-shrink:0">⠿</span><div class="'+numClass+'">'+(notOn?'✕':num)+'</div><div class="stop-name'+(notOn?' struck':'')+'">'+stop+badges+'</div><button class="expand-btn">▾</button><div class="detail-panel"></div>';
+    div.querySelector('.expand-btn').onclick=function(e){e.stopPropagation();toggleDetail(div,stop);};
+    if(!notOn)addDragEvents(div);
+    list.appendChild(div);
+  });
+}
+
+function isComplete(stop){
+  const d=stopData[stop];if(!d)return false;if(d.not_on_route)return false;
+  const type=getStopType(stop);
+  const fields=type==='shipped'?SHIPPED_FIELDS:(isPU()?PU_FIELDS:DELIVERY_FIELDS);
+  return fields.some(function(f){return d[f.key]&&d[f.key]!=='';});
+}
+
+function toggleDetail(row,stop){
+  const panel=row.querySelector('.detail-panel');const btn=row.querySelector('.expand-btn');
+  if(panel.classList.contains('open')){panel.classList.remove('open');btn.textContent='▾';return;}
+  panel.classList.add('open');btn.textContent='▴';renderDetailPanel(panel,stop);
+}
+
+function renderDetailPanel(panel,stop){
+  const d=stopData[stop]||{};
+  const notOn=d.not_on_route===true;const isShipped=d.stop_type==='shipped';const isPu=isPU();const isSeas=d.seasonal==='Seasonal';
+  let html='';
+  html+='<div class="field-row"><div class="field-label">Is this stop on your route?</div><div class="toggle-group">';
+  html+='<div class="tog'+(!notOn?' sel':'')+'" onclick="setNotOnRoute(\''+esc(stop)+'\',false)">Yes</div>';
+  html+='<div class="tog'+(notOn?' sel-danger':'')+'" onclick="setNotOnRoute(\''+esc(stop)+'\',true)">Not on my route</div>';
+  html+='</div></div>';
+  if(!notOn&&!isPu){
+    html+='<div class="field-row"><div class="field-label">Stop type</div><div class="toggle-group">';
+    html+='<div class="tog'+(!isShipped?' sel':'')+'" onclick="setStopType(\''+esc(stop)+'\',\'delivery\')">Regular delivery</div>';
+    html+='<div class="tog'+(isShipped?' sel-purple':'')+'" onclick="setStopType(\''+esc(stop)+'\',\'shipped\')">Shipped order</div>';
+    html+='</div></div>';
+  }
+  if(!notOn){
+    if(isShipped){
+      const f=SHIPPED_FIELDS[0];
+      html+='<div class="field-row"><div class="field-label">'+f.label+'</div><textarea placeholder="'+f.placeholder+'" onchange="setField(\''+esc(stop)+'\',\''+f.key+'\',this.value)">'+(d[f.key]||'')+'</textarea></div>';
+    } else {
+      const activeFields=isPu?PU_FIELDS:DELIVERY_FIELDS;
+      if(!isPu){
+        html+='<div class="field-row"><div class="field-label">Is this a seasonal account?</div><div class="toggle-group">';
+        ['Year-round','Seasonal'].forEach(function(opt){html+='<div class="tog'+(d.seasonal===opt?(opt==='Seasonal'?' sel-amber':' sel'):'')+'" onclick="setField(\''+esc(stop)+'\',\'seasonal\',\''+opt+'\');reopenPanel(\''+esc(stop)+'\')">'+opt+'</div>';});
+        html+='</div>';
+        if(isSeas){html+='<div class="season-range"><span style="font-size:13px;color:#6b5a4e">Active months:</span><input type="text" placeholder="May" value="'+(d.season_start||'')+'" onchange="setField(\''+esc(stop)+'\',\'season_start\',this.value)" style="width:80px"><span style="font-size:13px;color:#6b5a4e">to</span><input type="text" placeholder="October" value="'+(d.season_end||'')+'" onchange="setField(\''+esc(stop)+'\',\'season_end\',this.value)" style="width:80px"></div>';}
+        html+='</div>';
+      }
+      activeFields.forEach(function(f){
+        html+='<div class="field-row"><div class="field-label">'+f.label+'</div>';
+        if(f.type==='text'){html+='<input type="text" placeholder="'+f.placeholder+'" value="'+(d[f.key]||'')+'" onchange="setField(\''+esc(stop)+'\',\''+f.key+'\',this.value)">';}
+        else if(f.type==='textarea'){html+='<textarea placeholder="'+f.placeholder+'" onchange="setField(\''+esc(stop)+'\',\''+f.key+'\',this.value)">'+(d[f.key]||'')+'</textarea>';}
+        else if(f.type==='toggle'){
+          html+='<div class="toggle-group">';
+          f.options.forEach(function(opt){html+='<div class="tog'+(d[f.key]===opt?' sel':'')+'" onclick="setToggle(\''+esc(stop)+'\',\''+f.key+'\',\''+opt+'\',this)">'+opt+'</div>';});
+          html+='</div>';
+        }
+        html+='</div>';
+      });
+    }
+  }
+  panel.innerHTML=html;
+}
+
+function esc(s){return s.replace(/\\/g,'\\\\').replace(/'/g,"\\'");}
+function setField(stop,key,val){if(!stopData[stop])stopData[stop]={};stopData[stop][key]=val;updateProgress();}
+function setToggle(stop,key,val,el){
+  if(!stopData[stop])stopData[stop]={};stopData[stop][key]=val;
+  el.closest('.toggle-group').querySelectorAll('.tog').forEach(function(t){t.classList.remove('sel','sel-amber','sel-danger','sel-purple');});
+  el.classList.add('sel');updateProgress();
+}
+function setStopType(stop,type){if(!stopData[stop])stopData[stop]={};stopData[stop].stop_type=type;renderStops();setTimeout(function(){reopenPanel(stop);},50);}
+function setNotOnRoute(stop,isNot){if(!stopData[stop])stopData[stop]={};stopData[stop].not_on_route=isNot;renderStops();setTimeout(function(){reopenPanel(stop);},50);}
+function reopenPanel(stop){
+  const row=Array.from(document.querySelectorAll('.stop-row')).find(function(r){return r.dataset.stop===stop;});
+  if(!row)return;
+  const panel=row.querySelector('.detail-panel');panel.classList.add('open');row.querySelector('.expand-btn').textContent='▴';renderDetailPanel(panel,stop);
+}
+function updateProgress(){
+  const active=stopOrder.filter(function(s){return !stopData[s]||!stopData[s].not_on_route;});
+  const done=active.filter(function(s){return isComplete(s);}).length;
+  const notCount=stopOrder.length-active.length;
+  const addedCount=stopOrder.filter(function(s){return stopData[s]&&stopData[s].driver_added;}).length;
+  let prog=done+' of '+active.length+' stops filled in';
+  if(notCount)prog+=' · <span style="color:#c0392b">'+notCount+' flagged</span>';
+  if(addedCount)prog+=' · <span style="color:#0F6E56">'+addedCount+' added</span>';
+  document.getElementById('survey-progress').innerHTML=prog;
+}
+function toggleAddForm(){
+  const f=document.getElementById('add-stop-form');f.classList.toggle('open');
+  if(f.classList.contains('open'))document.getElementById('new-stop-name').focus();
+}
+function confirmAddStop(){
+  const nameEl=document.getElementById('new-stop-name');const name=nameEl.value.trim();if(!name)return;
+  stopOrder.push(name);if(!stopData[name])stopData[name]={};stopData[name].driver_added=true;
+  nameEl.value='';document.getElementById('add-stop-form').classList.remove('open');
+  renderStops();
+  setTimeout(function(){reopenPanel(name);const row=document.querySelector('.stop-row[data-stop="'+name+'"]');if(row)row.scrollIntoView({behavior:'smooth',block:'center'});},60);
+}
+async function submitSurvey(){
+  const btn=document.getElementById('submit-btn');const ind=document.getElementById('saving-indicator');
+  btn.disabled=true;btn.textContent='Submitting…';ind.style.display='inline';
+  const payload={day:currentDay,route:currentRoute,submitted:new Date().toLocaleString(),order:stopOrder,stopData:stopData};
+  try{
+    await fetch(SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+    ind.style.display='none';submittedRoutes[currentDay+'-'+currentRoute]=true;buildSelector();showPage('thanks');
+  } catch(err){
+    ind.style.display='none';btn.disabled=false;btn.textContent='✓ Submit route';showToast('Could not reach Google Sheets. Check your connection and try again.');
+  }
+}
+let dragSrc=null;
+function addDragEvents(el){
+  el.addEventListener('dragstart',function(e){dragSrc=el;el.classList.add('dragging');e.dataTransfer.effectAllowed='move';});
+  el.addEventListener('dragend',function(){el.classList.remove('dragging');document.querySelectorAll('.stop-row').forEach(function(r){r.classList.remove('drag-over');});});
+  el.addEventListener('dragover',function(e){e.preventDefault();el.classList.add('drag-over');});
+  el.addEventListener('dragleave',function(){el.classList.remove('drag-over');});
+  el.addEventListener('drop',function(e){
+    e.preventDefault();el.classList.remove('drag-over');if(dragSrc===el)return;
+    const nodes=Array.from(document.getElementById('stop-list').querySelectorAll('.stop-row'));
+    const fi=nodes.indexOf(dragSrc),ti=nodes.indexOf(el);
+    stopOrder.splice(ti,0,stopOrder.splice(fi,1)[0]);renderStops();
+  });
+}
+buildSelector();
+</script>
+</body>
+</html>
