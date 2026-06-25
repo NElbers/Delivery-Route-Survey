@@ -7,14 +7,16 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Georgia',serif;background:#faf9f7;color:#1a1a1a;min-height:100vh;padding:1rem}
-.wrap{max-width:680px;margin:0 auto;padding-bottom:3rem}
+.wrap{max-width:700px;margin:0 auto;padding-bottom:3rem}
 h1{font-size:1.4rem;font-weight:normal;letter-spacing:0.02em;color:#2c1810;margin-bottom:2px}
 .brand{font-size:11px;color:#8a7060;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:1.5rem}
 .page{display:none}.page.active{display:block}
 .card{background:#fff;border:1px solid #e8e0d8;border-radius:8px;padding:1rem 1.25rem;margin-bottom:12px}
+.info-banner{background:#fef9f0;border:1px solid #f0d8b0;border-radius:8px;padding:12px 16px;margin-bottom:16px;font-size:13px;color:#6b4c1e;font-family:sans-serif;line-height:1.6}
 .stop-row{background:#fff;border:1px solid #e8e0d8;border-radius:6px;padding:10px 12px;margin-bottom:8px;cursor:grab;display:flex;align-items:center;gap:10px;user-select:none;transition:box-shadow 0.15s}
 .stop-row:hover{box-shadow:0 2px 8px rgba(0,0,0,0.08)}
 .stop-row.seasonal-row{border-left:3px solid #EF9F27}
+.stop-row.occasional-row{border-left:3px solid #9B59B6}
 .stop-row.shipped-row{border-left:3px solid #7C5CBF}
 .stop-row.not-on-route{border-left:3px solid #e05c5c;opacity:0.55;cursor:default}
 .stop-row.added-row{border-left:3px solid #1D9E75}
@@ -22,12 +24,14 @@ h1{font-size:1.4rem;font-weight:normal;letter-spacing:0.02em;color:#2c1810;margi
 .stop-row.drag-over{border-color:#4a90d9;background:#f0f6ff}
 .stop-num{background:#f0ece8;border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;flex-shrink:0;color:#6b5a4e}
 .stop-num.seasonal-num{background:#FAEEDA;color:#854F0B}
+.stop-num.occasional-num{background:#F0E6F8;color:#6B1E9E}
 .stop-num.added-num{background:#E1F5EE;color:#0F6E56}
 .stop-num.shipped-num{background:#EDE9F7;color:#4A2D8A}
 .stop-name{flex:1;font-size:14px;color:#1a1a1a}
 .stop-name.struck{text-decoration:line-through;color:#aaa}
 .badge{display:inline-block;border-radius:4px;padding:1px 7px;font-size:11px;margin-left:6px;font-family:sans-serif}
 .badge-seasonal{background:#FAEEDA;color:#854F0B}
+.badge-occasional{background:#F0E6F8;color:#6B1E9E}
 .badge-added{background:#E1F5EE;color:#0F6E56}
 .badge-not{background:#fde8e8;color:#c0392b}
 .badge-shipped{background:#EDE9F7;color:#4A2D8A}
@@ -45,8 +49,9 @@ h1{font-size:1.4rem;font-weight:normal;letter-spacing:0.02em;color:#2c1810;margi
 .tog:hover{background:#e8e0d8}
 .tog.sel{background:#2c1810;border-color:#2c1810;color:#fff}
 .tog.sel-amber{background:#FAEEDA;border-color:#EF9F27;color:#854F0B}
+.tog.sel-purple{background:#F0E6F8;border-color:#9B59B6;color:#6B1E9E}
 .tog.sel-danger{background:#fde8e8;border-color:#e05c5c;color:#c0392b}
-.tog.sel-purple{background:#EDE9F7;border-color:#7C5CBF;color:#4A2D8A}
+.tog.sel-violet{background:#EDE9F7;border-color:#7C5CBF;color:#4A2D8A}
 .season-range{margin-top:8px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .season-range input{font-size:13px;border:1px solid #d8d0c8;border-radius:5px;padding:6px 10px;background:#faf9f7;font-family:sans-serif}
 .btn{border:1px solid #d8d0c8;border-radius:6px;background:#fff;padding:9px 18px;font-size:13px;cursor:pointer;color:#2c1810;font-family:'Georgia',serif;transition:all 0.15s}
@@ -77,7 +82,6 @@ p.sub{font-size:13px;color:#8a7060;margin-bottom:1rem;font-family:sans-serif}
 .step:last-child{border-radius:0 6px 6px 0}
 .step.active{background:#2c1810;border-color:#2c1810;color:#fff}
 .step.done{background:#e6f4ea;border-color:#1D9E75;color:#0F6E56}
-/* Van planner */
 .planner-layout{display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start}
 .van-tabs{display:flex;gap:4px;margin-bottom:10px}
 .van-tab{padding:5px 14px;font-size:12px;border:1px solid #d8d0c8;border-radius:6px;cursor:pointer;background:#fff;color:#6b5a4e;font-family:sans-serif}
@@ -95,13 +99,16 @@ canvas.placing{cursor:none}
 .pal-name{font-size:12px;color:#2c1810;line-height:1.2}
 .pal-dims{font-size:10px;color:#8a7060;margin-top:1px;font-family:sans-serif}
 .van-status{font-size:11px;color:#8a7060;margin-top:8px;min-height:32px;line-height:1.5;font-family:sans-serif}
+.van-notes-wrap{margin-top:12px}
+.van-notes-label{font-size:11px;color:#8a7060;letter-spacing:0.05em;text-transform:uppercase;font-family:sans-serif;margin-bottom:5px}
+.van-notes-wrap textarea{width:100%;font-size:12px;border:1px solid #d8d0c8;border-radius:5px;padding:8px 10px;background:#faf9f7;font-family:sans-serif;color:#1a1a1a;height:80px;resize:vertical}
 .stop-chips{margin-top:14px}
 .stop-chips-title{font-size:10px;color:#8a7060;letter-spacing:0.06em;text-transform:uppercase;font-family:sans-serif;margin-bottom:7px}
 .stop-chip{font-size:11px;padding:3px 8px;border:1px solid #e8e0d8;border-radius:4px;margin:2px;display:inline-block;color:#2c1810;font-family:sans-serif;background:#fff}
-.van-popup{display:none;position:fixed;background:#fff;border:1px solid #d8d0c8;border-radius:8px;padding:12px;z-index:100;box-shadow:0 4px 16px rgba(0,0,0,0.12);min-width:200px}
+.van-popup{display:none;position:fixed;background:#fff;border:1px solid #d8d0c8;border-radius:8px;padding:12px;z-index:100;box-shadow:0 4px 16px rgba(0,0,0,0.12);min-width:190px}
 .van-popup.open{display:block}
 .van-popup-title{font-size:11px;color:#6b5a4e;margin-bottom:8px;font-family:sans-serif}
-.van-popup select,.van-popup input[type=text]{width:100%;font-size:12px;padding:6px 8px;border:1px solid #d8d0c8;border-radius:5px;background:#faf9f7;color:#1a1a1a;margin-bottom:6px;font-family:sans-serif}
+.van-popup input[type=text]{width:100%;font-size:12px;padding:6px 8px;border:1px solid #d8d0c8;border-radius:5px;background:#faf9f7;color:#1a1a1a;margin-bottom:6px;font-family:sans-serif}
 .van-popup-btns{display:flex;gap:6px;margin-top:4px}
 </style>
 </head>
@@ -110,13 +117,11 @@ canvas.placing{cursor:none}
   <h1>Driver Route Survey</h1>
   <div class="brand">Orchard Hill Breadworks</div>
 
-  <!-- HOME -->
   <div id="page-home" class="page active">
     <p class="sub">Select your route and delivery day to get started.</p>
     <div class="selector-grid" id="route-selector"></div>
   </div>
 
-  <!-- SURVEY -->
   <div id="page-survey" class="page">
     <div class="steps">
       <div class="step active">1 · Stop details</div>
@@ -127,9 +132,12 @@ canvas.placing{cursor:none}
       <button class="btn" onclick="showPage('home')" style="font-size:12px;padding:5px 12px">← Back</button>
     </div>
     <p class="sub" id="survey-sub"></p>
+    <div class="info-banner">
+      📋 <strong>Your responses are saved to a spreadsheet</strong> which we use to build printed delivery booklets for each route — one card per stop with all the key details. Fill in as much as you can and we'll take it from there. Thank you!
+    </div>
     <div class="card" style="background:#faf9f7;margin-bottom:16px">
       <p style="font-size:13px;color:#6b5a4e;font-family:sans-serif"><strong style="color:#2c1810">Step 1:</strong> Drag stops into the order you drive them.</p>
-      <p style="font-size:13px;color:#6b5a4e;margin-top:5px;font-family:sans-serif"><strong style="color:#2c1810">Step 2:</strong> Tap ▾ on each stop to fill in details.</p>
+      <p style="font-size:13px;color:#6b5a4e;margin-top:5px;font-family:sans-serif"><strong style="color:#2c1810">Step 2:</strong> Tap ▾ on each stop to fill in details. Mark seasonal, occasional, shipped, or not-on-route as needed.</p>
       <p style="font-size:13px;color:#6b5a4e;margin-top:5px;font-family:sans-serif"><strong style="color:#2c1810">Step 3:</strong> Use "Add stop" if a stop is missing.</p>
     </div>
     <div class="progress" id="survey-progress"></div>
@@ -149,7 +157,6 @@ canvas.placing{cursor:none}
     </div>
   </div>
 
-  <!-- VAN PLANNER -->
   <div id="page-van" class="page">
     <div class="steps">
       <div class="step done">1 · Stop details ✓</div>
@@ -159,7 +166,7 @@ canvas.placing{cursor:none}
       <h2 id="van-title"></h2>
       <button class="btn" onclick="showPage('home')" style="font-size:12px;padding:5px 12px">← Done</button>
     </div>
-    <p class="sub">Build your load plan below. Single-click a placed item to move it · Double-click to label it · Right-click to remove.</p>
+    <p class="sub">Build your load plan. Single-click a placed item to move it · Double-click to label it · Right-click to remove.</p>
     <div class="van-tabs">
       <button class="van-tab active" onclick="switchVanTab('top',event)">Top-down view</button>
       <button class="van-tab" onclick="switchVanTab('side',event)">Side view</button>
@@ -173,56 +180,57 @@ canvas.placing{cursor:none}
         <div class="pal-sec-title">Trays <span style="font-weight:normal">(25×22×6 in)</span></div>
         <div class="pal-item" id="pal-tray-a" onclick="selectPkg('tray-a')">
           <canvas class="pal-swatch" id="sw-tray-a" width="36" height="28"></canvas>
-          <div><div class="pal-name">Tray — wide face front</div><div class="pal-dims">22 in across · 25 in deep</div></div>
+          <div><div class="pal-name">Tray — long side front</div><div class="pal-dims">25 in across · 22 in deep</div></div>
         </div>
         <div class="pal-item" id="pal-tray-b" onclick="selectPkg('tray-b')">
           <canvas class="pal-swatch" id="sw-tray-b" width="28" height="36"></canvas>
-          <div><div class="pal-name">Tray — narrow face front</div><div class="pal-dims">25 in across · 22 in deep</div></div>
+          <div><div class="pal-name">Tray — short side front</div><div class="pal-dims">22 in across · 25 in deep</div></div>
         </div>
         <div class="pal-sec-title">Boxes <span style="font-weight:normal">(16×12×10 in)</span></div>
         <div class="pal-item" id="pal-box-a" onclick="selectPkg('box-a')">
           <canvas class="pal-swatch" id="sw-box-a" width="36" height="28"></canvas>
-          <div><div class="pal-name">Box — wide face front</div><div class="pal-dims">16 in across · 12 in deep</div></div>
+          <div><div class="pal-name">Box — long side front</div><div class="pal-dims">16 in across · 12 in deep</div></div>
         </div>
         <div class="pal-item" id="pal-box-b" onclick="selectPkg('box-b')">
           <canvas class="pal-swatch" id="sw-box-b" width="28" height="36"></canvas>
-          <div><div class="pal-name">Box — narrow face front</div><div class="pal-dims">12 in across · 16 in deep</div></div>
+          <div><div class="pal-name">Box — short side front</div><div class="pal-dims">12 in across · 16 in deep</div></div>
         </div>
         <div class="pal-sec-title">Bags <span style="font-weight:normal">(16×10×20 in)</span></div>
         <div class="pal-item" id="pal-bag-a" onclick="selectPkg('bag-a')">
           <canvas class="pal-swatch" id="sw-bag-a" width="36" height="28"></canvas>
-          <div><div class="pal-name">Bag — wide face front</div><div class="pal-dims">16 in across · 10 in deep</div></div>
+          <div><div class="pal-name">Bag — long side front</div><div class="pal-dims">16 in across · 10 in deep</div></div>
         </div>
         <div class="pal-item" id="pal-bag-b" onclick="selectPkg('bag-b')">
           <canvas class="pal-swatch" id="sw-bag-b" width="28" height="36"></canvas>
-          <div><div class="pal-name">Bag — narrow face front</div><div class="pal-dims">10 in across · 16 in deep</div></div>
+          <div><div class="pal-name">Bag — short side front</div><div class="pal-dims">10 in across · 16 in deep</div></div>
         </div>
         <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
           <button class="btn btn-danger" onclick="clearVan()" style="font-size:12px;padding:6px 12px">Clear</button>
           <button class="btn btn-primary" onclick="saveAndPrint()" style="font-size:12px;padding:6px 12px">Save & print</button>
         </div>
         <div class="van-status" id="van-status">Select a package, then click the van to place it.</div>
+        <div class="van-notes-wrap">
+          <div class="van-notes-label">Load notes</div>
+          <textarea id="van-notes" placeholder="Any notes about this load — fragile items, special order placement, stacking notes..."></textarea>
+        </div>
         <div class="stop-chips" id="van-stop-chips"></div>
       </div>
     </div>
   </div>
 
-  <!-- THANKS -->
   <div id="page-thanks" class="page">
     <div style="text-align:center;padding:3rem 1rem">
       <div style="font-size:52px">✓</div>
       <h2 style="margin-top:1rem;font-size:20px">All done!</h2>
-      <p style="margin-top:8px;font-size:14px;color:#8a7060;font-family:sans-serif">Survey and van layout saved. Thank you!</p>
+      <p style="margin-top:8px;font-size:14px;color:#8a7060;font-family:sans-serif">Survey and van layout saved to the spreadsheet. Thank you!</p>
       <div style="margin-top:2rem"><button class="btn" onclick="showPage('home')">Back to routes</button></div>
     </div>
   </div>
 </div>
 
-<!-- Van label popup -->
 <div class="van-popup" id="van-popup">
-  <div class="van-popup-title">Label this item</div>
-  <select id="vp-select" onchange="onVpSelectChange()"></select>
-  <input type="text" id="vp-custom" placeholder="or type a custom label" style="display:none">
+  <div class="van-popup-title">Label this item (use short code — e.g. PCo, WG, Bco)</div>
+  <input type="text" id="vp-input" placeholder="e.g. PCo" maxlength="8">
   <div class="van-popup-btns">
     <button class="btn btn-primary" onclick="confirmVanLabel()" style="font-size:12px;padding:5px 12px">Set</button>
     <button class="btn btn-danger" onclick="removeVanActive()" style="font-size:12px;padding:5px 12px">Remove</button>
@@ -262,40 +270,54 @@ const ROUTES={
 };
 
 const DELIVERY_FIELDS=[
+  {key:"address",label:"Address",type:"text",placeholder:"e.g. 123 Main St, Keene NH"},
   {key:"parking",label:"Where to park",type:"text",placeholder:"e.g. Pull into loading dock on north side"},
   {key:"door",label:"Which door to use",type:"text",placeholder:"e.g. Back entrance, ring bell"},
   {key:"stocked",label:"Do you stock shelves?",type:"toggle",options:["Yes","No","Sometimes"]},
   {key:"signin",label:"Does a manager sign the invoice?",type:"toggle",options:["Yes","No","Sometimes"]},
   {key:"payment",label:"Do they pay on delivery?",type:"toggle",options:["Yes — cash","Yes — check","No — invoiced","Sometimes"]},
   {key:"buyback",label:"Do you buy back their day-olds?",type:"toggle",options:["Yes","No","Sometimes"]},
-  {key:"notes",label:"Notes, quirks & contacts",type:"textarea",placeholder:"e.g. Ask for Sarah at the front desk."}
+  {key:"notes",label:"Notes, quirks & contacts",type:"textarea",placeholder:"e.g. Ask for Sarah at the front desk. Ring the bell twice."}
 ];
-const SHIPPED_FIELDS=[{key:"ship_notes",label:"Notes, quirks & contacts",type:"textarea",placeholder:"e.g. Drop at receiving desk, ask for Tom."}];
+const SHIPPED_FIELDS=[
+  {key:"address",label:"Address / drop-off location",type:"text",placeholder:"e.g. 123 Main St, Keene NH"},
+  {key:"ship_notes",label:"Notes, quirks & contacts",type:"textarea",placeholder:"e.g. Drop at receiving desk, ask for Tom."}
+];
 const PU_FIELDS=[
+  {key:"address",label:"Address",type:"text",placeholder:"e.g. 123 Main St, Keene NH"},
   {key:"pu_location",label:"Where to pick up",type:"text",placeholder:"e.g. Side door, ask for Maria"},
   {key:"pu_what",label:"What are you picking up?",type:"text",placeholder:"e.g. Day-old bread trays"},
   {key:"pu_payment",label:"Do you pay them?",type:"toggle",options:["Yes — cash","Yes — check","No","Sometimes"]},
   {key:"pu_notes",label:"Notes, quirks & contacts",type:"textarea",placeholder:"e.g. Ask for James."}
 ];
 
-// Van pkg definitions
+// Van geometry (inches)
+const VAN_W=48,VAN_D=132,VAN_H=60,SEAT_D=36;
+// Sliding door zone: starts 46" from front, 32" wide, ends at 78"
+const DOOR_ZONE_START=46,DOOR_ZONE_END=78,DOOR_ZONE_W=60; // widens to 60"
+const DOOR_H=43; // side door height in inches
+const MAX_STACK_H=42; // 7 trays × 6"
+
+// Package defs — corrected orientations
+// "a" = long side faces front (long dimension is width across van)
+// "b" = short side faces front (short dimension is width across van)
 const PKGS={
-  'tray-a':{w:22,d:25,h:6, label:'Tray',fill:'#B5D4F4',stroke:'#378ADD',tc:'#0C447C',stackable:true},
-  'tray-b':{w:25,d:22,h:6, label:'Tray',fill:'#B5D4F4',stroke:'#378ADD',tc:'#0C447C',stackable:true},
+  'tray-a':{w:25,d:22,h:6, label:'Tray',fill:'#B5D4F4',stroke:'#378ADD',tc:'#0C447C',stackable:true},
+  'tray-b':{w:22,d:25,h:6, label:'Tray',fill:'#B5D4F4',stroke:'#378ADD',tc:'#0C447C',stackable:true},
   'box-a': {w:16,d:12,h:10,label:'Box', fill:'#C0DD97',stroke:'#639922',tc:'#27500A',stackable:true},
   'box-b': {w:12,d:16,h:10,label:'Box', fill:'#C0DD97',stroke:'#639922',tc:'#27500A',stackable:true},
   'bag-a': {w:16,d:10,h:20,label:'Bag', fill:'#FAC775',stroke:'#BA7517',tc:'#633806',stackable:false},
   'bag-b': {w:10,d:16,h:20,label:'Bag', fill:'#FAC775',stroke:'#BA7517',tc:'#633806',stackable:false},
 };
-const TPX=3.5,SPX=3,VAN_W=48,VAN_D=132,VAN_H=60,SEAT_D=36;
-const TOP_OX=30,TOP_OY=20,SIDE_OX=30,SIDE_FLOOR=20;
 
-// State
+const TPX=3.2,SPX=2.8;
+const TOP_OX=32,TOP_OY=22,SIDE_OX=32,SIDE_FLOOR=22;
+
 let currentDay='',currentRoute='',stopOrder=[],stopData={},submittedRoutes={};
 let placedTop=[],placedSide=[],selectedPkg=null,movingItem=null,vanActiveItem=null;
 let mouseX=0,mouseY=0,vanCurrentView='top',vanInited=false;
 let clickTimer=null;
-const DBL_DELAY=250;
+const DBL_DELAY=260;
 
 function showPage(id){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
@@ -304,7 +326,6 @@ function showPage(id){
 }
 function showToast(m,d=3500){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),d);}
 
-// HOME
 function buildSelector(){
   const el=document.getElementById('route-selector');el.innerHTML='';
   ["Tuesday","Thursday","Saturday"].forEach(day=>{
@@ -319,7 +340,6 @@ function buildSelector(){
   });
 }
 
-// SURVEY
 function isPU(){return currentRoute==='PU';}
 function startSurvey(day,route){
   currentDay=day;currentRoute=route;stopOrder=[...ROUTES[day][route]];stopData={};
@@ -332,11 +352,16 @@ function startSurvey(day,route){
   document.getElementById('submit-btn').disabled=false;
   renderStops();showPage('survey');
 }
+
 function getStopType(stop){
   const d=stopData[stop];if(!d)return isPU()?'pu':'delivery';
   if(d.not_on_route)return'not';if(d.stop_type==='shipped')return'shipped';
-  if(isPU())return'pu';if(d.seasonal==='Seasonal')return'seasonal';return'delivery';
+  if(isPU())return'pu';
+  if(d.frequency==='Seasonal')return'seasonal';
+  if(d.frequency==='Occasional')return'occasional';
+  return'delivery';
 }
+
 function renderStops(){
   const list=document.getElementById('stop-list');list.innerHTML='';
   const active=stopOrder.filter(s=>!stopData[s]||!stopData[s].not_on_route);
@@ -350,15 +375,22 @@ function renderStops(){
     const type=getStopType(stop),notOn=type==='not';if(!notOn)num++;
     const div=document.createElement('div');
     let rc='stop-row';
-    if(notOn)rc+=' not-on-route';else if(type==='shipped')rc+=' shipped-row';else if(type==='seasonal')rc+=' seasonal-row';
+    if(notOn)rc+=' not-on-route';
+    else if(type==='shipped')rc+=' shipped-row';
+    else if(type==='seasonal')rc+=' seasonal-row';
+    else if(type==='occasional')rc+=' occasional-row';
     if(stopData[stop]&&stopData[stop].driver_added&&!notOn)rc+=' added-row';
     div.className=rc;div.draggable=!notOn;div.dataset.stop=stop;
     let nc='stop-num';
-    if(type==='shipped')nc+=' shipped-num';else if(type==='seasonal')nc+=' seasonal-num';else if(stopData[stop]&&stopData[stop].driver_added)nc+=' added-num';
+    if(type==='shipped')nc+=' shipped-num';
+    else if(type==='seasonal')nc+=' seasonal-num';
+    else if(type==='occasional')nc+=' occasional-num';
+    else if(stopData[stop]&&stopData[stop].driver_added)nc+=' added-num';
     let badges='';
     if(notOn)badges+='<span class="badge badge-not">not on route</span>';
     else if(type==='shipped')badges+='<span class="badge badge-shipped">shipped</span>';
     else if(type==='seasonal'){const d=stopData[stop]||{};const r=d.season_start&&d.season_end?' '+d.season_start+'–'+d.season_end:'';badges+='<span class="badge badge-seasonal">seasonal'+r+'</span>';}
+    else if(type==='occasional')badges+='<span class="badge badge-occasional">occasional</span>';
     if(stopData[stop]&&stopData[stop].driver_added)badges+='<span class="badge badge-added">added</span>';
     if(isComplete(stop)&&!notOn)badges+='<span class="badge badge-done">✓</span>';
     div.innerHTML='<span style="color:#c8b8a8;font-size:18px;flex-shrink:0">⠿</span><div class="'+nc+'">'+(notOn?'✕':num)+'</div><div class="stop-name'+(notOn?' struck':'')+'">'+stop+badges+'</div><button class="expand-btn">▾</button><div class="detail-panel"></div>';
@@ -367,18 +399,22 @@ function renderStops(){
     list.appendChild(div);
   });
 }
+
 function isComplete(stop){
   const d=stopData[stop];if(!d)return false;if(d.not_on_route)return false;
   const type=getStopType(stop);
-  return (type==='shipped'?SHIPPED_FIELDS:(isPU()?PU_FIELDS:DELIVERY_FIELDS)).some(f=>d[f.key]&&d[f.key]!=='');
+  return(type==='shipped'?SHIPPED_FIELDS:(isPU()?PU_FIELDS:DELIVERY_FIELDS)).some(f=>d[f.key]&&d[f.key]!=='');
 }
+
 function toggleDetail(row,stop){
   const panel=row.querySelector('.detail-panel'),btn=row.querySelector('.expand-btn');
   if(panel.classList.contains('open')){panel.classList.remove('open');btn.textContent='▾';return;}
   panel.classList.add('open');btn.textContent='▴';renderDetailPanel(panel,stop);
 }
+
 function renderDetailPanel(panel,stop){
-  const d=stopData[stop]||{},notOn=d.not_on_route===true,isShipped=d.stop_type==='shipped',isPu=isPU(),isSeas=d.seasonal==='Seasonal';
+  const d=stopData[stop]||{},notOn=d.not_on_route===true,isShipped=d.stop_type==='shipped',isPu=isPU();
+  const freq=d.frequency||'Year-round';
   let html='<div class="field-row"><div class="field-label">Is this stop on your route?</div><div class="toggle-group">';
   html+='<div class="tog'+(!notOn?' sel':'')+'" onclick="setNotOnRoute(\''+esc(stop)+'\',false)">Yes</div>';
   html+='<div class="tog'+(notOn?' sel-danger':'')+'" onclick="setNotOnRoute(\''+esc(stop)+'\',true)">Not on my route</div>';
@@ -386,42 +422,50 @@ function renderDetailPanel(panel,stop){
   if(!notOn&&!isPu){
     html+='<div class="field-row"><div class="field-label">Stop type</div><div class="toggle-group">';
     html+='<div class="tog'+(!isShipped?' sel':'')+'" onclick="setStopType(\''+esc(stop)+'\',\'delivery\')">Regular delivery</div>';
-    html+='<div class="tog'+(isShipped?' sel-purple':'')+'" onclick="setStopType(\''+esc(stop)+'\',\'shipped\')">Shipped order</div>';
+    html+='<div class="tog'+(isShipped?' sel-violet':'')+'" onclick="setStopType(\''+esc(stop)+'\',\'shipped\')">Shipped order</div>';
     html+='</div></div>';
   }
+  if(!notOn&&!isPu&&!isShipped){
+    html+='<div class="field-row"><div class="field-label">Delivery frequency</div><div class="toggle-group">';
+    ['Year-round','Seasonal','Occasional'].forEach(opt=>{
+      let cls='tog';
+      if(freq===opt){cls+=(opt==='Seasonal'?' sel-amber':opt==='Occasional'?' sel-purple':' sel');}
+      html+='<div class="'+cls+'" onclick="setFrequency(\''+esc(stop)+'\',\''+opt+'\')">'+opt+'</div>';
+    });
+    html+='</div>';
+    if(freq==='Seasonal'||freq==='Occasional'){
+      const isSeas=freq==='Seasonal';
+      html+='<div class="season-range"><span style="font-size:13px;color:#6b5a4e">Active months:</span><input type="text" placeholder="May" value="'+(d.season_start||'')+'" onchange="setField(\''+esc(stop)+'\',\'season_start\',this.value)" style="width:80px"><span style="font-size:13px;color:#6b5a4e">to</span><input type="text" placeholder="October" value="'+(d.season_end||'')+'" onchange="setField(\''+esc(stop)+'\',\'season_end\',this.value)" style="width:80px"></div>';
+    }
+    html+='</div>';
+  }
   if(!notOn){
-    if(isShipped){
-      const f=SHIPPED_FIELDS[0];html+='<div class="field-row"><div class="field-label">'+f.label+'</div><textarea placeholder="'+f.placeholder+'" onchange="setField(\''+esc(stop)+'\',\''+f.key+'\',this.value)">'+(d[f.key]||'')+'</textarea></div>';
-    } else {
-      const af=isPu?PU_FIELDS:DELIVERY_FIELDS;
-      if(!isPu){
-        html+='<div class="field-row"><div class="field-label">Is this a seasonal account?</div><div class="toggle-group">';
-        ['Year-round','Seasonal'].forEach(opt=>{html+='<div class="tog'+(d.seasonal===opt?(opt==='Seasonal'?' sel-amber':' sel'):'')+'" onclick="setField(\''+esc(stop)+'\',\'seasonal\',\''+opt+'\');reopenPanel(\''+esc(stop)+'\')">'+opt+'</div>';});
-        html+='</div>';
-        if(isSeas)html+='<div class="season-range"><span style="font-size:13px;color:#6b5a4e">Active months:</span><input type="text" placeholder="May" value="'+(d.season_start||'')+'" onchange="setField(\''+esc(stop)+'\',\'season_start\',this.value)" style="width:80px"><span style="font-size:13px;color:#6b5a4e">to</span><input type="text" placeholder="October" value="'+(d.season_end||'')+'" onchange="setField(\''+esc(stop)+'\',\'season_end\',this.value)" style="width:80px"></div>';
+    const af=isShipped?SHIPPED_FIELDS:(isPu?PU_FIELDS:DELIVERY_FIELDS);
+    af.forEach(f=>{
+      html+='<div class="field-row"><div class="field-label">'+f.label+'</div>';
+      if(f.type==='text')html+='<input type="text" placeholder="'+f.placeholder+'" value="'+(d[f.key]||'')+'" onchange="setField(\''+esc(stop)+'\',\''+f.key+'\',this.value)">';
+      else if(f.type==='textarea')html+='<textarea placeholder="'+f.placeholder+'" onchange="setField(\''+esc(stop)+'\',\''+f.key+'\',this.value)">'+(d[f.key]||'')+'</textarea>';
+      else if(f.type==='toggle'){
+        html+='<div class="toggle-group">';
+        f.options.forEach(opt=>html+='<div class="tog'+(d[f.key]===opt?' sel':'')+'" onclick="setToggle(\''+esc(stop)+'\',\''+f.key+'\',\''+opt+'\',this)">'+opt+'</div>');
         html+='</div>';
       }
-      af.forEach(f=>{
-        html+='<div class="field-row"><div class="field-label">'+f.label+'</div>';
-        if(f.type==='text')html+='<input type="text" placeholder="'+f.placeholder+'" value="'+(d[f.key]||'')+'" onchange="setField(\''+esc(stop)+'\',\''+f.key+'\',this.value)">';
-        else if(f.type==='textarea')html+='<textarea placeholder="'+f.placeholder+'" onchange="setField(\''+esc(stop)+'\',\''+f.key+'\',this.value)">'+(d[f.key]||'')+'</textarea>';
-        else if(f.type==='toggle'){
-          html+='<div class="toggle-group">';
-          f.options.forEach(opt=>html+='<div class="tog'+(d[f.key]===opt?' sel':'')+'" onclick="setToggle(\''+esc(stop)+'\',\''+f.key+'\',\''+opt+'\',this)">'+opt+'</div>');
-          html+='</div>';
-        }
-        html+='</div>';
-      });
-    }
+      html+='</div>';
+    });
   }
   panel.innerHTML=html;
 }
+
 function esc(s){return s.replace(/\\/g,'\\\\').replace(/'/g,"\\'")}
 function setField(stop,key,val){if(!stopData[stop])stopData[stop]={};stopData[stop][key]=val;updateSurveyProgress();}
 function setToggle(stop,key,val,el){
   if(!stopData[stop])stopData[stop]={};stopData[stop][key]=val;
-  el.closest('.toggle-group').querySelectorAll('.tog').forEach(t=>t.classList.remove('sel','sel-amber','sel-danger','sel-purple'));
+  el.closest('.toggle-group').querySelectorAll('.tog').forEach(t=>t.classList.remove('sel','sel-amber','sel-purple','sel-danger','sel-violet'));
   el.classList.add('sel');updateSurveyProgress();
+}
+function setFrequency(stop,val){
+  if(!stopData[stop])stopData[stop]={};stopData[stop].frequency=val;
+  renderStops();setTimeout(()=>reopenPanel(stop),50);
 }
 function setStopType(stop,type){if(!stopData[stop])stopData[stop]={};stopData[stop].stop_type=type;renderStops();setTimeout(()=>reopenPanel(stop),50);}
 function setNotOnRoute(stop,isNot){if(!stopData[stop])stopData[stop]={};stopData[stop].not_on_route=isNot;renderStops();setTimeout(()=>reopenPanel(stop),50);}
@@ -457,6 +501,7 @@ function addSurveyDrag(el){
     stopOrder.splice(ti,0,stopOrder.splice(fi,1)[0]);renderStops();
   });
 }
+
 async function submitSurvey(){
   const btn=document.getElementById('submit-btn'),ind=document.getElementById('saving-ind');
   btn.disabled=true;btn.textContent='Saving…';ind.style.display='inline';
@@ -466,30 +511,20 @@ async function submitSurvey(){
     submittedRoutes[currentDay+'-'+currentRoute]=true;ind.style.display='none';buildSelector();
     document.getElementById('van-title').textContent=currentDay+' — '+(currentRoute==='PU'?'Pickups':'Route '+currentRoute);
     showPage('van');
-  } catch(err){
+  }catch(err){
     ind.style.display='none';btn.disabled=false;btn.textContent='Submit & pack the van →';
     showToast('Could not reach Google Sheets. Check connection and try again.');
   }
 }
 
-// VAN PLANNER
+// ===== VAN PLANNER =====
 function initVan(){
   if(vanInited)return;vanInited=true;
-  // Stop chips
   const active=stopOrder.filter(s=>!stopData[s]||!stopData[s].not_on_route);
   const sc=document.getElementById('van-stop-chips');
   sc.innerHTML='<div class="stop-chips-title">Your stops (in order)</div>';
   active.forEach((s,i)=>{const c=document.createElement('span');c.className='stop-chip';c.textContent=(i+1)+'. '+s;sc.appendChild(c);});
-  // Populate dropdown
-  const sel=document.getElementById('vp-select');
-  sel.innerHTML='<option value="">— select a stop —</option>';
-  active.forEach(s=>{const o=document.createElement('option');o.value=s;o.textContent=s;sel.appendChild(o);});
-  const oc=document.createElement('option');oc.value='__custom__';oc.textContent='Custom label…';sel.appendChild(oc);
-  // Init canvases
-  const ct=document.getElementById('ct');
-  ct.width=TOP_OX*2+Math.round(VAN_W*TPX);ct.height=TOP_OY+25+Math.round(VAN_D*TPX);
-  const cs=document.getElementById('cs');
-  cs.width=SIDE_OX+20+Math.round(VAN_D*SPX);cs.height=SIDE_FLOOR+60+Math.round(VAN_H*SPX);
+
   // Draw swatches
   Object.entries(PKGS).forEach(([key,pkg])=>{
     const sw=document.getElementById('sw-'+key);if(!sw)return;
@@ -498,7 +533,18 @@ function initVan(){
     c.fillRect(1,1,W-2,H-2);c.strokeRect(1,1,W-2,H-2);
     c.fillStyle=pkg.tc;c.font='bold 7px sans-serif';c.textAlign='center';c.fillText(pkg.label,W/2,H/2+2);
   });
-  // Events
+
+  // Top canvas — extra width for door bulge: max width is 60", with margins
+  const ct=document.getElementById('ct');
+  const extraW=Math.round((DOOR_ZONE_W-VAN_W)/2*TPX); // 6*TPX each side
+  ct.width=TOP_OX*2+Math.round(DOOR_ZONE_W*TPX);
+  ct.height=TOP_OY+25+Math.round(VAN_D*TPX);
+
+  // Side canvas
+  const cs=document.getElementById('cs');
+  cs.width=SIDE_OX+20+Math.round(VAN_D*SPX);
+  cs.height=SIDE_FLOOR+60+Math.round(VAN_H*SPX);
+
   ct.addEventListener('mousemove',e=>onVanMM(e,'top'));
   cs.addEventListener('mousemove',e=>onVanMM(e,'side'));
   ct.addEventListener('mouseleave',()=>{if(selectedPkg||movingItem)vanRedraw('top');});
@@ -521,8 +567,16 @@ function switchVanTab(v,e){
   getVC(v).classList.toggle('placing',!!(selectedPkg||movingItem));
 }
 function getVC(v){return document.getElementById(v==='top'?'ct':'cs');}
-function getVCtx(v){return getVC(v).getContext('2d');}
 function getVP(v){return v==='top'?placedTop:placedSide;}
+
+// Top-down: the van has a bulge. Origin for cargo zone.
+// In top view, the van center is constant, sides bulge outward in door zone.
+// We draw the cargo starting at TOP_OX + extraW (the narrow section x-offset)
+function getTopVanX(){
+  // x-origin of the narrow (48") section in the canvas
+  const extraW=Math.round((DOOR_ZONE_W-VAN_W)/2*TPX);
+  return TOP_OX+extraW;
+}
 
 function selectPkg(key){
   if(selectedPkg===key&&!movingItem){
@@ -559,11 +613,12 @@ function onVanClick(e,view){
 function onVanDbl(e,view){
   if(clickTimer){clearTimeout(clickTimer);clickTimer=null;}
   if(selectedPkg||movingItem)return;
-  if(view!=='top')return; // label only on top view
   const r=getVC(view).getBoundingClientRect();const mx=e.clientX-r.left,my=e.clientY-r.top;
   const placed=getVP(view);
   for(let i=placed.length-1;i>=0;i--){
-    if(vanHit(mx,my,placed[i],view)){vanActiveItem={placed,index:i,view};openVanPopup(e,placed[i].label);return;}
+    if(vanHit(mx,my,placed[i],view)){
+      vanActiveItem={placed,index:i,view};openVanPopup(e,placed[i].label);return;
+    }
   }
 }
 function onVanRC(e,view){
@@ -578,7 +633,7 @@ function doVanPlace(e,view){
   const r=getVC(view).getBoundingClientRect();const mx=e.clientX-r.left,my=e.clientY-r.top;
   const key=movingItem?movingItem.key:selectedPkg;
   const pos=getVanPlacePos(mx,my,key,view);
-  if(!pos){setVanStatus('Cannot place there — outside cargo area.');return;}
+  if(!pos){setVanStatus('Cannot place there — outside cargo area or stack too high (max 7 trays / 42").');return;}
   if(movingItem){
     movingItem.item.x=pos.x;movingItem.item.y=pos.y;movingItem=null;selectedPkg=null;
     getVC(view).classList.remove('placing');document.querySelectorAll('.pal-item').forEach(p=>p.classList.remove('selected'));
@@ -589,51 +644,78 @@ function doVanPlace(e,view){
   }
   vanRedraw(view);
 }
+
+// Get available width at a given depth in the van (top view)
+function getVanWidthAtDepth(y_in){
+  if(y_in>=DOOR_ZONE_START&&y_in<DOOR_ZONE_END)return DOOR_ZONE_W;
+  return VAN_W;
+}
+// Get the x-offset (left edge of available floor) at a depth
+function getVanXOffsetAtDepth(y_in){
+  if(y_in>=DOOR_ZONE_START&&y_in<DOOR_ZONE_END)return 0; // wider, starts at 0 of DOOR_ZONE_W
+  const extra=(DOOR_ZONE_W-VAN_W)/2;
+  return extra; // narrow sections are inset by 'extra' from canvas edge
+}
+
 function vanHit(mx,my,item,view){
   const pkg=PKGS[item.key];
-  if(view==='top'){const px=TOP_OX+item.x*TPX,py=TOP_OY+item.y*TPX;return mx>=px&&mx<=px+pkg.w*TPX&&my>=py&&my<=py+pkg.d*TPX;}
-  else{const cs=document.getElementById('cs'),floorY=cs.height-SIDE_FLOOR,px=SIDE_OX+item.x*SPX,py=floorY-item.y*SPX-pkg.h*SPX;return mx>=px&&mx<=px+pkg.d*SPX&&my>=py&&my<=py+pkg.h*SPX;}
+  if(view==='top'){
+    const extra=(DOOR_ZONE_W-VAN_W)/2*TPX;
+    const baseX=TOP_OX; // canvas left of door zone
+    const itemX=baseX+item.x*TPX; // item.x is offset from left of door zone
+    const itemY=TOP_OY+item.y*TPX;
+    return mx>=itemX&&mx<=itemX+pkg.w*TPX&&my>=itemY&&my<=itemY+pkg.d*TPX;
+  } else {
+    const cs=document.getElementById('cs'),floorY=cs.height-SIDE_FLOOR;
+    const px=SIDE_OX+item.x*SPX,py=floorY-item.y*SPX-pkg.h*SPX;
+    return mx>=px&&mx<=px+pkg.d*SPX&&my>=py&&my<=py+pkg.h*SPX;
+  }
 }
+
 function getVanPlacePos(mx,my,key,view){
   const pkg=PKGS[key];
   if(view==='top'){
-    const xi=Math.round((mx-TOP_OX)/TPX-pkg.w/2),yi=Math.round((my-TOP_OY)/TPX-pkg.d/2);
-    const cx=Math.max(0,Math.min(VAN_W-pkg.w,xi)),cy=Math.max(SEAT_D,Math.min(VAN_D-pkg.d,yi));
-    if(cy<SEAT_D)return null;return{x:cx,y:cy};
+    // item.x is canvas x relative to TOP_OX (which is left edge of door zone width)
+    const xi=Math.round((mx-TOP_OX)/TPX - pkg.w/2);
+    const yi=Math.round((my-TOP_OY)/TPX - pkg.d/2);
+    // clamp depth to cargo zone
+    const cy=Math.max(SEAT_D,Math.min(VAN_D-pkg.d,yi));
+    if(cy<SEAT_D)return null;
+    // Width available at this depth
+    const availW=getVanWidthAtDepth(cy);
+    const xOffset=(DOOR_ZONE_W-availW)/2; // left edge of available floor in door-zone coords
+    const cx=Math.max(xOffset,Math.min(xOffset+availW-pkg.w,xi));
+    return{x:cx,y:cy};
   } else {
     const cs=document.getElementById('cs'),floorY=cs.height-SIDE_FLOOR;
-    const xi=Math.round((mx-SIDE_OX)/SPX-pkg.d/2),cx=Math.max(SEAT_D,Math.min(VAN_D-pkg.d,xi));
-    const sy=getVanStackY(cx,cx+pkg.d,key);if(sy+pkg.h>VAN_H)return null;return{x:cx,y:sy};
+    const xi=Math.round((mx-SIDE_OX)/SPX-pkg.d/2);
+    const cx=Math.max(SEAT_D,Math.min(VAN_D-pkg.d,xi));
+    const sy=getVanStackY(cx,cx+pkg.d,key);
+    if(sy+pkg.h>MAX_STACK_H)return null;
+    return{x:cx,y:sy};
   }
 }
+
 function getVanStackY(x1,x2,key){
   const pkg=PKGS[key];if(!pkg.stackable)return 0;let maxY=0;
   placedSide.forEach(p=>{const pp=PKGS[p.key];if(p.x+pp.d>x1&&p.x<x2&&pp.stackable)maxY=Math.max(maxY,p.y+pp.h);});
   return maxY;
 }
+
 function getGhostPos(view){const key=movingItem?movingItem.key:selectedPkg;if(!key)return null;return getVanPlacePos(mouseX,mouseY,key,view);}
 
-// Popup
 function openVanPopup(e,label){
-  const pop=document.getElementById('van-popup'),sel=document.getElementById('vp-select'),inp=document.getElementById('vp-custom');
-  const active=stopOrder.filter(s=>!stopData[s]||!stopData[s].not_on_route);
-  const matchStop=active.includes(label);
-  sel.value=matchStop?label:(label?'__custom__':'');
-  inp.style.display=(label&&!matchStop)?'block':'none';inp.value=(!matchStop&&label)?label:'';
-  pop.style.left=Math.min(e.clientX+10,window.innerWidth-215)+'px';
-  pop.style.top=Math.min(e.clientY+10,window.innerHeight-135)+'px';
-  pop.classList.add('open');setTimeout(()=>{if(sel.value==='__custom__')inp.focus();else sel.focus();},40);
-}
-function onVpSelectChange(){
-  const sel=document.getElementById('vp-select'),inp=document.getElementById('vp-custom');
-  inp.style.display=sel.value==='__custom__'?'block':'none';if(sel.value==='__custom__')inp.focus();
+  const pop=document.getElementById('van-popup'),inp=document.getElementById('vp-input');
+  inp.value=label||'';
+  pop.style.left=Math.min(e.clientX+10,window.innerWidth-210)+'px';
+  pop.style.top=Math.min(e.clientY+10,window.innerHeight-120)+'px';
+  pop.classList.add('open');setTimeout(()=>inp.focus(),40);
 }
 function closeVanPopup(){document.getElementById('van-popup').classList.remove('open');vanActiveItem=null;}
 function confirmVanLabel(){
   if(!vanActiveItem)return;
-  const sel=document.getElementById('vp-select'),inp=document.getElementById('vp-custom');
-  const label=sel.value==='__custom__'?inp.value.trim():(sel.value||'');
-  vanActiveItem.placed[vanActiveItem.index].label=label;closeVanPopup();vanRedraw('top');
+  vanActiveItem.placed[vanActiveItem.index].label=document.getElementById('vp-input').value.trim();
+  closeVanPopup();vanRedraw(vanActiveItem.view||'top');
 }
 function removeVanActive(){if(!vanActiveItem)return;vanActiveItem.placed.splice(vanActiveItem.index,1);closeVanPopup();vanRedraw('top');}
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeVanPopup();if(e.key==='Enter'&&document.getElementById('van-popup').classList.contains('open'))confirmVanLabel();});
@@ -649,84 +731,183 @@ function clearVan(){
 
 function vanRedraw(v){v==='top'?drawVanTop():drawVanSide();}
 
-function drawVanTopOutline(c){
-  const s=TPX,ox=TOP_OX,oy=TOP_OY,vw=VAN_W*s,vd=VAN_D*s,sd=SEAT_D*s;
-  c.strokeStyle='#888';c.lineWidth=1.5;c.strokeRect(ox,oy,vw,vd);
-  c.fillStyle='rgba(180,170,160,0.15)';c.fillRect(ox,oy,vw,sd);
-  c.fillStyle='rgba(180,100,80,0.09)';c.fillRect(ox,oy,vw/2,sd);
-  c.strokeStyle='rgba(180,100,80,0.35)';c.lineWidth=1;
-  c.beginPath();c.moveTo(ox,oy);c.lineTo(ox+vw/2,oy+sd);c.stroke();
-  c.beginPath();c.moveTo(ox+vw/2,oy);c.lineTo(ox,oy+sd);c.stroke();
-  c.fillStyle='rgba(100,80,60,0.4)';c.font='9px sans-serif';c.textAlign='center';
-  c.fillText('DRIVER',ox+vw/4,oy+sd/2);c.fillText('PASSENGER',ox+vw*3/4,oy+sd/2);
-  c.strokeStyle='#ccc';c.lineWidth=1;c.setLineDash([4,3]);
-  c.beginPath();c.moveTo(ox,oy+sd);c.lineTo(ox+vw,oy+sd);c.stroke();c.setLineDash([]);
-  c.strokeStyle='#378ADD';c.lineWidth=2;
-  c.beginPath();c.moveTo(ox,oy+sd+8*s);c.lineTo(ox,oy+sd+48*s);c.stroke();
-  c.beginPath();c.moveTo(ox+vw,oy+sd+8*s);c.lineTo(ox+vw,oy+sd+48*s);c.stroke();
-  c.beginPath();c.moveTo(ox+(vw-40*s)/2,oy+vd);c.lineTo(ox+(vw+40*s)/2,oy+vd);c.stroke();
-  c.fillStyle='rgba(55,138,221,0.55)';c.font='8px sans-serif';
-  c.textAlign='right';c.fillText('door',ox-3,oy+sd+30*s);
-  c.textAlign='left';c.fillText('door',ox+vw+3,oy+sd+30*s);
-  c.textAlign='center';c.fillText('rear door',ox+vw/2,oy+vd+11);
-  c.fillStyle='rgba(100,80,60,0.4)';c.font='9px sans-serif';c.textAlign='center';
-  c.fillText('48 in / 4 ft',ox+vw/2,oy-6);
-  c.save();c.translate(ox-16,oy+vd/2);c.rotate(-Math.PI/2);c.fillText('132 in / 11 ft',0,0);c.restore();
-}
+// ===== TOP VIEW DRAW =====
 function drawVanTop(){
-  const ct=document.getElementById('ct');if(!ct.getContext)return;
+  const ct=document.getElementById('ct');if(!ct||!ct.getContext)return;
   const c=ct.getContext('2d');c.clearRect(0,0,ct.width,ct.height);
-  drawVanTopOutline(c);
-  placedTop.forEach(p=>drawVanItemTop(c,p,1));
+  const s=TPX,ox=TOP_OX,oy=TOP_OY;
+  // Van geometry in canvas coords
+  // Door zone: full width = DOOR_ZONE_W*s, centered in canvas from ox
+  const dzW=DOOR_ZONE_W*s,narW=VAN_W*s;
+  const extraW=(DOOR_ZONE_W-VAN_W)/2*s; // 6*s per side
+  const vd=VAN_D*s,sd=SEAT_D*s;
+  const dzStart=DOOR_ZONE_START*s,dzEnd=DOOR_ZONE_END*s;
+
+  // Draw van outline as polygon
+  c.beginPath();
+  // Start top-left, go clockwise
+  c.moveTo(ox+extraW,oy);              // TL of narrow section
+  c.lineTo(ox+extraW+narW,oy);         // TR of narrow section
+  // right side down to door zone start
+  c.lineTo(ox+extraW+narW,oy+dzStart);
+  // bulge right
+  c.lineTo(ox+dzW,oy+dzStart);
+  c.lineTo(ox+dzW,oy+dzEnd);
+  // narrow again right
+  c.lineTo(ox+extraW+narW,oy+dzEnd);
+  c.lineTo(ox+extraW+narW,oy+vd);     // bottom right
+  c.lineTo(ox+extraW,oy+vd);          // bottom left
+  // left side up
+  c.lineTo(ox+extraW,oy+dzEnd);
+  // bulge left
+  c.lineTo(ox,oy+dzEnd);
+  c.lineTo(ox,oy+dzStart);
+  c.lineTo(ox+extraW,oy+dzStart);
+  c.closePath();
+  c.fillStyle='rgba(245,240,235,0.5)';c.fill();
+  c.strokeStyle='#888';c.lineWidth=1.5;c.stroke();
+
+  // Seat area
+  c.fillStyle='rgba(180,170,160,0.2)';
+  c.fillRect(ox+extraW,oy,narW,sd);
+
+  // Driver seat cross-out
+  c.fillStyle='rgba(180,100,80,0.1)';c.fillRect(ox+extraW,oy,narW/2,sd);
+  c.strokeStyle='rgba(180,100,80,0.35)';c.lineWidth=1;
+  c.beginPath();c.moveTo(ox+extraW,oy);c.lineTo(ox+extraW+narW/2,oy+sd);c.stroke();
+  c.beginPath();c.moveTo(ox+extraW+narW/2,oy);c.lineTo(ox+extraW,oy+sd);c.stroke();
+  c.fillStyle='rgba(100,80,60,0.4)';c.font='9px sans-serif';c.textAlign='center';
+  c.fillText('DRIVER',ox+extraW+narW/4,oy+sd/2);
+  c.fillText('PASSENGER',ox+extraW+narW*3/4,oy+sd/2);
+
+  // Seat divider
+  c.strokeStyle='#ccc';c.lineWidth=1;c.setLineDash([4,3]);
+  c.beginPath();c.moveTo(ox+extraW,oy+sd);c.lineTo(ox+extraW+narW,oy+sd);c.stroke();
+  c.setLineDash([]);
+
+  // Door zone highlight
+  c.fillStyle='rgba(55,138,221,0.04)';
+  c.fillRect(ox,oy+dzStart,dzW,dzEnd-dzStart);
+  c.strokeStyle='rgba(55,138,221,0.25)';c.lineWidth=1;c.setLineDash([3,3]);
+  c.beginPath();c.moveTo(ox,oy+dzStart);c.lineTo(ox+dzW,oy+dzStart);c.stroke();
+  c.beginPath();c.moveTo(ox,oy+dzEnd);c.lineTo(ox+dzW,oy+dzEnd);c.stroke();
+  c.setLineDash([]);
+  c.fillStyle='rgba(55,138,221,0.5)';c.font='8px sans-serif';c.textAlign='center';
+  c.fillText('sliding doors',ox+dzW/2,oy+dzStart-3);
+  // Door openings on sides
+  c.strokeStyle='#378ADD';c.lineWidth=2;
+  c.beginPath();c.moveTo(ox,oy+dzStart);c.lineTo(ox,oy+dzEnd);c.stroke();
+  c.beginPath();c.moveTo(ox+dzW,oy+dzStart);c.lineTo(ox+dzW,oy+dzEnd);c.stroke();
+  // Rear door
+  c.beginPath();c.moveTo(ox+extraW+(narW-40*s)/2,oy+vd);c.lineTo(ox+extraW+(narW+40*s)/2,oy+vd);c.stroke();
+  c.fillStyle='rgba(55,138,221,0.55)';c.font='8px sans-serif';
+  c.textAlign='right';c.fillText('door',ox-3,oy+dzStart+(dzEnd-dzStart)/2);
+  c.textAlign='left';c.fillText('door',ox+dzW+3,oy+dzStart+(dzEnd-dzStart)/2);
+  c.textAlign='center';c.fillText('rear door',ox+extraW+narW/2,oy+vd+11);
+
+  // Dimension labels
+  c.fillStyle='rgba(100,80,60,0.4)';c.font='9px sans-serif';c.textAlign='center';
+  c.fillText('48 in',ox+extraW+narW/2,oy-6);
+  c.fillText('60 in (door zone)',ox+dzW/2,oy+dzStart+(dzEnd-dzStart)/2+4);
+  c.save();c.translate(ox+extraW-16,oy+vd/2);c.rotate(-Math.PI/2);c.fillText('132 in',0,0);c.restore();
+
+  // Placed items
+  placedTop.forEach(p=>drawItemTop(c,p,1,ox,oy,s));
+  // Ghost
   const ghost=getGhostPos('top');
-  if(ghost){const key=movingItem?movingItem.key:selectedPkg;drawVanItemTop(c,{key,x:ghost.x,y:ghost.y,label:''},0.4);c.fillStyle='rgba(44,24,16,0.7)';c.beginPath();c.arc(mouseX,mouseY,3,0,Math.PI*2);c.fill();}
+  if(ghost){
+    const key=movingItem?movingItem.key:selectedPkg;
+    drawItemTop(c,{key,x:ghost.x,y:ghost.y,label:''},0.4,ox,oy,s);
+    c.fillStyle='rgba(44,24,16,0.7)';c.beginPath();c.arc(mouseX,mouseY,3,0,Math.PI*2);c.fill();
+  }
 }
-function drawVanItemTop(c,p,alpha){
-  const pkg=PKGS[p.key],s=TPX,ox=TOP_OX,oy=TOP_OY;
+
+function drawItemTop(c,p,alpha,ox,oy,s){
+  const pkg=PKGS[p.key];
   const px=ox+p.x*s,py=oy+p.y*s,pw=pkg.w*s,pd=pkg.d*s;
   c.globalAlpha=alpha;c.fillStyle=pkg.fill;c.strokeStyle=pkg.stroke;c.lineWidth=1.5;
   c.fillRect(px,py,pw,pd);c.strokeRect(px,py,pw,pd);
   c.fillStyle=pkg.tc;c.textAlign='center';
   if(pd>10&&pw>12){
     c.font='bold 8px sans-serif';
-    const lbl=p.label?(p.label.length>12?p.label.substring(0,11)+'…':p.label):pkg.label;
+    const lbl=p.label?(p.label.length>8?p.label.substring(0,7)+'…':p.label):pkg.label;
     c.fillText(lbl,px+pw/2,py+pd/2+3);
   }
   c.globalAlpha=1;
 }
-function drawVanSideOutline(c){
-  const cs=document.getElementById('cs'),s=SPX,ox=SIDE_OX,floorY=cs.height-SIDE_FLOOR,vw=VAN_D*s,vh=VAN_H*s,sd=SEAT_D*s;
+
+// ===== SIDE VIEW DRAW =====
+function drawVanSide(){
+  const cs=document.getElementById('cs');if(!cs||!cs.getContext)return;
+  const c=cs.getContext('2d');c.clearRect(0,0,cs.width,cs.height);
+  const s=SPX,ox=SIDE_OX,floorY=cs.height-SIDE_FLOOR;
+  const vw=VAN_D*s,vh=VAN_H*s,sd=SEAT_D*s;
+  const dzStart=DOOR_ZONE_START*s,dzEnd=DOOR_ZONE_END*s,doorH=DOOR_H*s;
+  const maxStackY=floorY-MAX_STACK_H*s;
+
+  // Van outline
   c.strokeStyle='#888';c.lineWidth=1.5;c.strokeRect(ox,floorY-vh,vw,vh);
-  c.fillStyle='rgba(180,170,160,0.18)';c.fillRect(ox,floorY-vh,sd,vh);
+
+  // Seat area
+  c.fillStyle='rgba(180,170,160,0.2)';c.fillRect(ox,floorY-vh,sd,vh);
   c.fillStyle='rgba(140,120,100,0.18)';c.fillRect(ox+2,floorY-28*s,sd-4,28*s);
-  c.fillStyle='rgba(100,80,60,0.4)';c.font='9px sans-serif';c.textAlign='center';c.fillText('seats',ox+sd/2,floorY-vh/2);
+  c.fillStyle='rgba(100,80,60,0.4)';c.font='9px sans-serif';c.textAlign='center';
+  c.fillText('seats',ox+sd/2,floorY-vh/2);
+
+  // Seat divider
   c.strokeStyle='#ccc';c.lineWidth=1;c.setLineDash([4,3]);
   c.beginPath();c.moveTo(ox+sd,floorY-vh);c.lineTo(ox+sd,floorY);c.stroke();c.setLineDash([]);
+
+  // Max stack height line
+  c.strokeStyle='rgba(220,100,60,0.4)';c.lineWidth=1;c.setLineDash([3,4]);
+  c.beginPath();c.moveTo(ox+sd,maxStackY);c.lineTo(ox+vw,maxStackY);c.stroke();c.setLineDash([]);
+  c.fillStyle='rgba(220,100,60,0.5)';c.font='8px sans-serif';c.textAlign='right';
+  c.fillText('max stack 42"',ox+vw-2,maxStackY-3);
+
+  // Sliding door opening on side — right side of canvas
+  // Door is at depths DOOR_ZONE_START to DOOR_ZONE_END, height from floor up DOOR_H
+  c.fillStyle='rgba(55,138,221,0.08)';
+  c.fillRect(ox+dzStart,floorY-doorH,dzEnd-dzStart,doorH);
+  c.strokeStyle='#378ADD';c.lineWidth=1.5;
+  // left door edge
+  c.beginPath();c.moveTo(ox+dzStart,floorY);c.lineTo(ox+dzStart,floorY-doorH);c.stroke();
+  // top of door
+  c.beginPath();c.moveTo(ox+dzStart,floorY-doorH);c.lineTo(ox+dzEnd,floorY-doorH);c.stroke();
+  // right door edge
+  c.beginPath();c.moveTo(ox+dzEnd,floorY);c.lineTo(ox+dzEnd,floorY-doorH);c.stroke();
+  c.fillStyle='rgba(55,138,221,0.55)';c.font='8px sans-serif';c.textAlign='center';
+  c.fillText('sliding door',ox+(dzStart+dzEnd)/2,floorY-doorH-4);
+  c.fillText('32" wide · 43" tall',ox+(dzStart+dzEnd)/2,floorY-doorH+9);
+
+  // Height guides
   [0,12,24,36,48,60].forEach(h=>{
-    c.fillStyle='rgba(100,80,60,0.3)';c.font='8px sans-serif';c.textAlign='right';c.fillText(h+'"',ox-3,floorY-h*s+3);
-    c.strokeStyle='rgba(150,140,130,0.1)';c.lineWidth=0.5;c.beginPath();c.moveTo(ox,floorY-h*s);c.lineTo(ox+vw,floorY-h*s);c.stroke();
+    c.fillStyle='rgba(100,80,60,0.3)';c.font='8px sans-serif';c.textAlign='right';
+    c.fillText(h+'"',ox-3,floorY-h*s+3);
+    c.strokeStyle='rgba(150,140,130,0.1)';c.lineWidth=0.5;
+    c.beginPath();c.moveTo(ox,floorY-h*s);c.lineTo(ox+vw,floorY-h*s);c.stroke();
   });
   c.fillStyle='rgba(100,80,60,0.4)';c.font='9px sans-serif';c.textAlign='center';
   c.fillText('← front',ox+sd/2,floorY+14);c.fillText('rear →',ox+vw-20,floorY+14);
   c.save();c.translate(ox-20,floorY-vh/2);c.rotate(-Math.PI/2);c.fillText('60 in tall',0,0);c.restore();
   c.textAlign='center';c.fillText('132 in / 11 ft',ox+vw/2,floorY-vh-8);
-}
-function drawVanSide(){
-  const cs=document.getElementById('cs');if(!cs.getContext)return;
-  const c=cs.getContext('2d');c.clearRect(0,0,cs.width,cs.height);
-  drawVanSideOutline(c);
-  const floorY=cs.height-SIDE_FLOOR,s=SPX,ox=SIDE_OX;
+
+  // Placed items
   placedSide.forEach(p=>{
-    const pkg=PKGS[p.key],px=ox+p.x*s,py=floorY-p.y*s-pkg.h*s,pw=pkg.d*s,ph=pkg.h*s;
-    c.fillStyle=pkg.fill;c.strokeStyle=pkg.stroke;c.lineWidth=1.5;c.fillRect(px,py,pw,ph);c.strokeRect(px,py,pw,ph);
+    const pkg=PKGS[p.key];
+    const px=ox+p.x*s,py=floorY-p.y*s-pkg.h*s,pw=pkg.d*s,ph=pkg.h*s;
+    c.fillStyle=pkg.fill;c.strokeStyle=pkg.stroke;c.lineWidth=1.5;
+    c.fillRect(px,py,pw,ph);c.strokeRect(px,py,pw,ph);
     c.fillStyle=pkg.tc;c.font='bold 8px sans-serif';c.textAlign='center';
-    if(ph>12){const lbl=p.label?p.label:pkg.label;c.fillText(lbl.length>8?lbl.substring(0,7)+'…':lbl,px+pw/2,py+ph/2+3);}
+    if(ph>10){const lbl=p.label?p.label:pkg.label;c.fillText(lbl.length>6?lbl.substring(0,5)+'…':lbl,px+pw/2,py+ph/2+3);}
   });
+
+  // Ghost
   const ghost=getGhostPos('side');
   if(ghost){
     const key=movingItem?movingItem.key:selectedPkg,pkg=PKGS[key];
     const px=ox+ghost.x*s,py=floorY-ghost.y*s-pkg.h*s,pw=pkg.d*s,ph=pkg.h*s;
-    c.globalAlpha=0.4;c.fillStyle=pkg.fill;c.strokeStyle=pkg.stroke;c.lineWidth=1.5;c.fillRect(px,py,pw,ph);c.strokeRect(px,py,pw,ph);c.globalAlpha=1;
+    c.globalAlpha=0.4;c.fillStyle=pkg.fill;c.strokeStyle=pkg.stroke;c.lineWidth=1.5;
+    c.fillRect(px,py,pw,ph);c.strokeRect(px,py,pw,ph);c.globalAlpha=1;
     c.fillStyle='rgba(44,24,16,0.7)';c.beginPath();c.arc(mouseX,mouseY,3,0,Math.PI*2);c.fill();
     if(ghost.y>0){c.fillStyle='rgba(100,80,60,0.5)';c.font='8px sans-serif';c.textAlign='left';c.fillText(ghost.y+'" off floor',px+pw+4,py+ph/2+3);}
   }
@@ -737,22 +918,30 @@ async function saveAndPrint(){
   const topUrl=ct.toDataURL(),sideUrl=cs.toDataURL();
   const label=currentRoute==='PU'?'Pickups':'Route '+currentRoute;
   const active=stopOrder.filter(s=>!stopData[s]||!stopData[s].not_on_route);
+  const notes=document.getElementById('van-notes').value.trim();
   const payload={
     day:currentDay,route:currentRoute+'_vanplan',submitted:new Date().toLocaleString(),
     order:['Van layout — see print'],
-    stopData:{'Van layout — see print':{notes:'Top: '+placedTop.map(p=>(p.label||p.key)).join(', ')+' | Side: '+placedSide.map(p=>(p.label||p.key)).join(', ')}}
+    stopData:{'Van layout — see print':{notes:(notes?'Notes: '+notes+' | ':'')+'Top: '+placedTop.map(p=>(p.label||p.key)).join(', ')+' | Side: '+placedSide.map(p=>(p.label||p.key)).join(', ')}}
   };
   try{await fetch(SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});}catch(e){}
   const w=window.open('','_blank');
-  w.document.write('<!DOCTYPE html><html><head><title>Van Load Plan</title><style>body{font-family:sans-serif;padding:20px;max-width:700px}h1{font-size:16px;margin-bottom:4px}h2{font-size:13px;margin:16px 0 6px;color:#555}img{border:1px solid #ccc;display:block;max-width:100%;margin-bottom:16px}.chips{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:14px}.chip{font-size:11px;padding:3px 8px;border:1px solid #ccc;border-radius:4px}p{font-size:11px;color:#aaa;margin-top:8px}@media print{button{display:none}}</style></head><body>');
+  w.document.write('<!DOCTYPE html><html><head><title>Van Load Plan</title><style>');
+  w.document.write('body{font-family:sans-serif;padding:20px;max-width:750px}');
+  w.document.write('h1{font-size:16px;margin-bottom:4px}h2{font-size:13px;margin:16px 0 6px;color:#555}');
+  w.document.write('img{display:block;width:100%;margin-bottom:16px;border:1px solid #ddd}');
+  w.document.write('.chips{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:14px}.chip{font-size:11px;padding:3px 8px;border:1px solid #ccc;border-radius:4px}');
+  w.document.write('.notes{font-size:12px;color:#444;background:#f9f9f9;border:1px solid #ddd;border-radius:4px;padding:8px 12px;margin-bottom:14px}');
+  w.document.write('p.legend{font-size:11px;color:#aaa;margin-top:8px}@media print{button{display:none}}</style></head><body>');
   w.document.write('<h1>Van Load Plan — Orchard Hill Breadworks</h1>');
   w.document.write('<p style="font-size:12px;color:#888;margin-bottom:12px">'+currentDay+' — '+label+' &nbsp;·&nbsp; '+new Date().toLocaleDateString()+'</p>');
+  if(notes)w.document.write('<div class="notes"><strong>Load notes:</strong> '+notes+'</div>');
   w.document.write('<h2>Stop order</h2><div class="chips">');
   active.forEach((s,i)=>w.document.write('<span class="chip">'+(i+1)+'. '+s+'</span>'));
   w.document.write('</div>');
   w.document.write('<h2>Top-down view</h2><img src="'+topUrl+'">');
   w.document.write('<h2>Side view</h2><img src="'+sideUrl+'">');
-  w.document.write('<p>Blue = Tray &nbsp;·&nbsp; Green = Box &nbsp;·&nbsp; Amber = Bag</p>');
+  w.document.write('<p class="legend">Blue = Tray &nbsp;·&nbsp; Green = Box &nbsp;·&nbsp; Amber = Bag &nbsp;·&nbsp; Long side front / Short side front</p>');
   w.document.write('<button onclick="window.print()" style="margin-top:12px;padding:8px 18px;cursor:pointer;font-size:13px">Print</button>');
   w.document.write('</body></html>');w.document.close();
 }
