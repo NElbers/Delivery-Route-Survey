@@ -5,10 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Orchard Hill Breadworks — Delivery Booklets</title>
 <style>
-/* ── Screen UI ──────────────────────────────────────────────────────────── */
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Georgia',serif;background:#f0ece8;color:#1a1a1a;min-height:100vh}
-.screen{padding:2rem;max-width:580px;margin:0 auto}
+.screen{padding:2rem;max-width:560px;margin:0 auto}
 h1{font-size:1.5rem;font-weight:normal;color:#2c1810;letter-spacing:0.02em;margin-bottom:3px}
 .brand{font-size:11px;color:#8a7060;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:2rem;font-family:sans-serif}
 .controls{background:#fff;border:1px solid #e8e0d8;border-radius:10px;padding:1.5rem;margin-bottom:1.5rem}
@@ -23,125 +22,125 @@ h1{font-size:1.5rem;font-weight:normal;color:#2c1810;letter-spacing:0.02em;margi
 .btn-primary:hover{background:#3d2416}
 .btn:disabled{opacity:0.4;cursor:not-allowed}
 .status{font-size:13px;color:#8a7060;font-family:sans-serif;margin-top:8px;min-height:20px}
-.print-bar{display:none;margin-bottom:1.5rem;gap:12px;align-items:center;flex-wrap:wrap}
+.print-bar{display:none;margin-bottom:1.5rem;gap:12px;align-items:center}
 .print-bar.visible{display:flex}
 .preview-count{font-size:12px;color:#8a7060;font-family:sans-serif}
 
-/* ── Card — half letter portrait: 5.5" × 8.5" ──────────────────────────── */
-/* Screen preview at ~90dpi ≈ 495 × 765px */
+/* ── Card: 5.5" × 8.5" portrait ─────────────────────────────────────────── */
 .card{
   width:495px;
   min-height:765px;
   background:#fff;
   border:1px solid #d8d0c8;
   border-radius:4px;
-  position:relative;
   overflow:hidden;
   font-family:'Georgia',serif;
   box-shadow:0 2px 10px rgba(0,0,0,0.09);
-  margin-bottom:24px;
+  margin-bottom:28px;
   display:flex;
   flex-direction:column;
 }
 
-/* Top accent band */
-.band{height:10px;width:100%;flex-shrink:0}
-.year-round .band{background:#2c1810}
-.seasonal .band{background:#C87A00}
-.occasional .band{background:#7B3FA0}
-.route-header .band{background:#8a7060}
+/* Thick top band — 48px so it clears printer margins */
+.band{
+  height:48px;
+  width:100%;
+  flex-shrink:0;
+  display:flex;
+  align-items:center;
+  padding:0 20px;
+  justify-content:space-between;
+}
+.year-round  .band{background:#2c1810}
+.seasonal    .band{background:#C87A00}
+.occasional  .band{background:#7B3FA0}
+.route-header .band{background:#6b5a4e}
+
+/* Hole punch sits inside the band */
+.hole{
+  width:28px;height:28px;border-radius:50%;
+  border:2px dashed rgba(255,255,255,0.4);
+  background:rgba(255,255,255,0.12);
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+}
+.hole-inner{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,0.25)}
+
+/* Freq label in band */
+.band-label{
+  font-size:11px;letter-spacing:0.1em;text-transform:uppercase;
+  font-family:sans-serif;font-weight:600;color:rgba(255,255,255,0.75);
+}
 
 /* Card body */
 .card-body{
   flex:1;
-  padding:20px 24px 22px 24px;
+  padding:18px 24px 20px 24px;
   display:flex;
   flex-direction:column;
-  position:relative;
 }
 
-/* Hole punch — top left below band */
-.hole{
-  position:absolute;
-  top:16px;left:16px;
-  width:30px;height:30px;
-  border-radius:50%;
-  border:2px dashed #c8b8a8;
-  background:#f0ece8;
-  display:flex;align-items:center;justify-content:center;
+/* Stop name row */
+.name-row{
+  display:flex;align-items:baseline;gap:10px;
+  margin-bottom:5px;
 }
-.hole-inner{width:9px;height:9px;border-radius:50%;background:#d8c8b8}
-
-/* Frequency pill — top right */
-.freq-pill{
-  position:absolute;
-  top:18px;right:20px;
-  font-size:9px;letter-spacing:0.08em;text-transform:uppercase;
-  font-family:sans-serif;font-weight:600;
-  padding:3px 10px;border-radius:20px;
-}
-.year-round .freq-pill{background:#f0ece8;color:#8a7060}
-.seasonal .freq-pill{background:#FAEEDA;color:#854F0B}
-.occasional .freq-pill{background:#F0E6F8;color:#6B1E9E}
-
-/* Stop number + name header */
-.card-header{
-  display:flex;align-items:flex-start;gap:10px;
-  padding-top:4px;
-  padding-left:42px; /* clear hole */
-  margin-bottom:6px;
-}
-.stop-num-badge{
-  width:28px;height:28px;border-radius:50%;
-  background:#f0ece8;
-  display:flex;align-items:center;justify-content:center;
-  font-size:12px;font-weight:600;color:#8a7060;
-  font-family:sans-serif;flex-shrink:0;margin-top:3px;
+.stop-num{
+  font-size:15px;font-weight:600;color:#8a7060;
+  font-family:sans-serif;flex-shrink:0;
 }
 .stop-name{
-  font-size:24px;font-weight:normal;color:#2c1810;
+  font-size:26px;font-weight:normal;color:#2c1810;
   line-height:1.15;letter-spacing:0.01em;
 }
 
-/* Address + months under name */
+/* Address + months */
 .stop-sub{
-  padding-left:42px;
-  margin-bottom:14px;
-  display:flex;flex-direction:column;gap:3px;
+  font-size:12px;color:#8a7060;font-family:sans-serif;
+  margin-bottom:14px;display:flex;flex-direction:column;gap:3px;
 }
-.address-line{font-size:11px;color:#8a7060;font-family:sans-serif}
-.months-line{font-size:11px;color:#854F0B;font-family:sans-serif}
+.months-line{color:#854F0B}
 
 /* Divider */
-.card-divider{height:1px;background:#e8e0d8;margin-bottom:16px}
+.divider{height:1px;background:#e8e0d8;margin-bottom:16px}
 
-/* Fields — single column, full width */
-.fields{display:flex;flex-direction:column;gap:12px;flex:1}
-
-.field{display:flex;gap:10px;align-items:flex-start}
-.field-icon{font-size:15px;flex-shrink:0;width:22px;text-align:center;margin-top:1px;opacity:0.55}
-.field-body{flex:1;min-width:0}
-.field-label{
-  font-size:9px;text-transform:uppercase;letter-spacing:0.08em;
-  color:#8a7060;line-height:1;margin-bottom:3px;font-family:sans-serif;
+/* Full-width text fields (parking, door) */
+.field-full{margin-bottom:14px}
+.field-lbl{
+  font-size:10px;text-transform:uppercase;letter-spacing:0.08em;
+  color:#8a7060;font-family:sans-serif;margin-bottom:3px;
 }
-.field-val{font-size:14px;color:#1a1a1a;line-height:1.35;word-break:break-word}
-.notes-val{font-size:13px;color:#2c1810;line-height:1.5;font-style:italic}
+.field-val{font-size:16px;color:#1a1a1a;line-height:1.3}
 
-/* Inline tag chips */
-.tags{display:flex;gap:5px;flex-wrap:wrap;margin-top:2px}
-.tag{
-  font-size:12px;padding:3px 10px;border-radius:12px;
-  font-family:sans-serif;background:#f0ece8;color:#2c1810;border:1px solid #e8e0d8;
+/* 2×2 pill grid */
+.pill-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  margin-bottom:16px;
 }
-.tag.yes{background:#e6f4ea;color:#1e7e34;border-color:#b8e0c0}
-.tag.no{background:#fef3f0;color:#8a4030;border-color:#f0d0c8}
-.tag.sometimes{background:#fef8ec;color:#7a5800;border-color:#f0d898}
-.tag.check{background:#FAEEDA;color:#854F0B;border-color:#f0d0a0}
-.tag.cash{background:#e8f4e8;color:#2a6030;border-color:#b0d8b0}
-.tag.invoiced{background:#f0ece8;color:#6b5a4e;border-color:#d8d0c8}
+.pill-cell{}
+.pill-cell .field-lbl{margin-bottom:5px}
+.pill{
+  display:inline-flex;align-items:center;
+  font-size:14px;padding:5px 14px;border-radius:20px;
+  font-family:sans-serif;border:1.5px solid #e8e0d8;background:#f0ece8;color:#2c1810;
+}
+.pill.yes{background:#e6f4ea;color:#1e7e34;border-color:#b8e0c0}
+.pill.no{background:#fef3f0;color:#8a4030;border-color:#f0d0c8}
+.pill.sometimes{background:#fef8ec;color:#7a5800;border-color:#f0d898}
+.pill.check{background:#FAEEDA;color:#854F0B;border-color:#f0d0a0}
+.pill.cash{background:#e8f4e8;color:#2a6030;border-color:#b0d8b0}
+.pill.invoiced{background:#f0ece8;color:#6b5a4e;border-color:#d8d0c8}
 
-/* Photo link footer */
+/* Notes */
+.notes-section{flex:1;display:flex;flex-direction:column}
+.notes-val{
+  font-size:15px;color:#2c1810;line-height:1.55;
+  font-style:italic;flex:1;
+}
+
+/* Photo link */
 .photo-footer{
   margin-top:14px;padding-top:10px;
   border-top:1px solid #e8e0d8;
@@ -149,53 +148,39 @@ h1{font-size:1.5rem;font-weight:normal;color:#2c1810;letter-spacing:0.02em;margi
   word-break:break-all;line-height:1.4;
 }
 
-/* Route header card */
+/* Route header */
 .card.route-header{background:#2c1810}
-.route-header .card-body{justify-content:center;align-items:flex-start}
-.route-header-day{
-  font-size:12px;color:#c8a878;letter-spacing:0.14em;
-  text-transform:uppercase;font-family:sans-serif;margin-bottom:12px;
-}
-.route-header-route{
-  font-size:48px;font-weight:normal;color:#fff;
-  letter-spacing:0.01em;line-height:1;margin-bottom:12px;
-}
-.route-header-count{font-size:13px;color:#8a7060;font-family:sans-serif;margin-bottom:0}
-.route-header-brand{
-  position:absolute;bottom:22px;right:22px;
-  font-size:9px;color:#4a3828;letter-spacing:0.1em;
-  text-transform:uppercase;font-family:sans-serif;
-}
+.route-header .card-body{justify-content:center}
+.rh-day{font-size:12px;color:#c8a878;letter-spacing:0.14em;text-transform:uppercase;font-family:sans-serif;margin-bottom:12px}
+.rh-route{font-size:52px;font-weight:normal;color:#fff;line-height:1;margin-bottom:12px}
+.rh-count{font-size:14px;color:#8a7060;font-family:sans-serif}
+.rh-brand{margin-top:auto;font-size:9px;color:#4a3828;letter-spacing:0.1em;text-transform:uppercase;font-family:sans-serif;text-align:right}
 
 /* ── Print ──────────────────────────────────────────────────────────────── */
-@media print {
+@media print{
   body{background:#fff;padding:0;margin:0}
   .screen-only{display:none!important}
   .screen{padding:0;max-width:none;margin:0}
   .card{
-    width:5.5in;
-    min-height:8.5in;
-    height:8.5in;
-    border:none;border-radius:0;
-    box-shadow:none;
-    margin:0;padding:0;
-    page-break-after:always;
-    page-break-inside:avoid;
+    width:5.5in;min-height:8.5in;height:8.5in;
+    border:none;border-radius:0;box-shadow:none;
+    margin:0;page-break-after:always;page-break-inside:avoid;
     display:flex;flex-direction:column;
   }
-  .card-body{padding:24px 30px 28px 28px}
-  .band{height:12px}
-  .stop-name{font-size:28px}
-  .field-val{font-size:15px}
-  .notes-val{font-size:14px}
-  .field-label{font-size:10px}
-  .tag{font-size:13px;padding:4px 11px}
+  .band{height:54px;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .card-body{padding:20px 32px 28px 30px}
+  .stop-name{font-size:30px}
+  .field-val{font-size:17px}
+  .pill{font-size:15px;padding:6px 16px}
+  .notes-val{font-size:15px}
+  .field-lbl{font-size:10px}
+  .pill-grid{gap:12px;margin-bottom:18px}
+  .field-full{margin-bottom:16px}
   @page{size:5.5in 8.5in portrait;margin:0}
 }
 </style>
 </head>
 <body>
-
 <div class="screen">
   <h1>Delivery Booklet Generator</h1>
   <div class="brand">Orchard Hill Breadworks</div>
@@ -243,16 +228,15 @@ const ROUTE_NUMBERS={
 
 function onDayChange(){
   const day=document.getElementById('sel-day').value;
-  const routeSel=document.getElementById('sel-route');
+  const rs=document.getElementById('sel-route');
   document.getElementById('gen-btn').disabled=true;
-  routeSel.innerHTML='<option value="">— select —</option>';
-  if(!day){routeSel.disabled=true;return;}
+  rs.innerHTML='<option value="">— select —</option>';
+  if(!day){rs.disabled=true;return;}
   (ROUTE_NUMBERS[day]||[]).forEach(r=>{
     const o=document.createElement('option');o.value=r;
-    o.textContent=r==='PU'?'Pickups':'Route '+r;
-    routeSel.appendChild(o);
+    o.textContent=r==='PU'?'Pickups':'Route '+r;rs.appendChild(o);
   });
-  routeSel.disabled=false;
+  rs.disabled=false;
 }
 function onRouteChange(){
   document.getElementById('gen-btn').disabled=!document.getElementById('sel-route').value;
@@ -272,11 +256,10 @@ async function generateBooklet(){
   if(!active.length){setStatus('No active stops found for this route.');return;}
 
   setStatus('');
-  const container=document.getElementById('cards-container');
+  const c=document.getElementById('cards-container');
   const label=route==='PU'?'Pickups':'Route '+route;
-  container.appendChild(makeHeaderCard(day,label,active.length));
-  active.forEach((stop,i)=>container.appendChild(makeStopCard(stop,i+1)));
-
+  c.appendChild(makeHeaderCard(day,label,active.length));
+  active.forEach((stop,i)=>c.appendChild(makeStopCard(stop,i+1)));
   document.getElementById('preview-count').textContent=`${active.length} stops · ${active.length+1} cards total`;
   document.getElementById('print-bar').classList.add('visible');
 }
@@ -299,7 +282,7 @@ async function fetchRoute(day,route){
         parking=r[6]||'';door='';stocked=r[7]||'';signin=r[8]||'';
         payment=r[9]||'';buyback=r[10]||'';notes=r[11]||'';puWhat=r[12]||'';
         flagged=r[13]||'';photoLink='';
-      } else {
+      }else{
         address=r[2]||'';freq=r[4]||'Year-round';months=r[5]||'';
         parking=r[6]||'';door=r[7]||'';stocked=r[8]||'';signin=r[9]||'';
         payment=r[10]||'';buyback=r[11]||'';notes=r[12]||'';puWhat=r[13]||'';
@@ -315,75 +298,83 @@ function makeHeaderCard(day,label,count){
   const div=document.createElement('div');
   div.className='card route-header';
   div.innerHTML=`
-    <div class="band"></div>
+    <div class="band">
+      <div class="hole"><div class="hole-inner"></div></div>
+      <div class="band-label">${esc(day)}</div>
+    </div>
     <div class="card-body">
-      <div class="route-header-day">${esc(day)}</div>
-      <div class="route-header-route">${esc(label)}</div>
-      <div class="route-header-count">${count} stops</div>
-      <div class="route-header-brand">Orchard Hill Breadworks</div>
+      <div class="rh-day">${esc(day)}</div>
+      <div class="rh-route">${esc(label)}</div>
+      <div class="rh-count">${count} stops</div>
+      <div class="rh-brand">Orchard Hill Breadworks</div>
     </div>`;
   return div;
 }
 
 function makeStopCard(stop,num){
   const freqClass=stop.freq==='Seasonal'?'seasonal':stop.freq==='Occasional'?'occasional':'year-round';
-  const nameSize=stop.name.length>28?'18px':stop.name.length>20?'21px':'24px';
+  const nameSize=stop.name.length>28?'19px':stop.name.length>20?'22px':'26px';
 
-  const fields=[];
-
+  // Full-width fields
+  let fullFields='';
   if(stop.parking)
-    fields.push(mkField('🅿','Where to park',`<div class="field-val">${esc(stop.parking)}</div>`));
+    fullFields+=`<div class="field-full"><div class="field-lbl">Where to park</div><div class="field-val">${esc(stop.parking)}</div></div>`;
   if(stop.door)
-    fields.push(mkField('🚪','Which door',`<div class="field-val">${esc(stop.door)}</div>`));
-  if(stop.stocked)
-    fields.push(mkField('📦','Stock shelves',`<div class="tags">${chip(stop.stocked)}</div>`));
-  if(stop.signin)
-    fields.push(mkField('✍️','Manager sign-in',`<div class="tags">${chip(stop.signin)}</div>`));
-  if(stop.payment)
-    fields.push(mkField('💵','Payment',`<div class="tags">${payChip(stop.payment)}</div>`));
-  if(stop.buyback)
-    fields.push(mkField('↩','Buy back day-olds',`<div class="tags">${chip(stop.buyback)}</div>`));
+    fullFields+=`<div class="field-full"><div class="field-lbl">Which door</div><div class="field-val">${esc(stop.door)}</div></div>`;
   if(stop.puWhat)
-    fields.push(mkField('📥','Pick up',`<div class="field-val">${esc(stop.puWhat)}</div>`));
-  if(stop.notes)
-    fields.push(mkField('📝','Notes, quirks & contacts',`<div class="notes-val">${esc(stop.notes)}</div>`));
+    fullFields+=`<div class="field-full"><div class="field-lbl">Pick up</div><div class="field-val">${esc(stop.puWhat)}</div></div>`;
+
+  // 2×2 pill grid — only render if any of these have values
+  const hasPills=stop.stocked||stop.signin||stop.payment||stop.buyback;
+  let pillGrid='';
+  if(hasPills){
+    pillGrid=`<div class="pill-grid">
+      ${stop.stocked?`<div class="pill-cell"><div class="field-lbl">Stock shelves</div>${mkPill(stop.stocked)}</div>`:'<div></div>'}
+      ${stop.signin?`<div class="pill-cell"><div class="field-lbl">Manager sign-in</div>${mkPill(stop.signin)}</div>`:'<div></div>'}
+      ${stop.payment?`<div class="pill-cell"><div class="field-lbl">Payment</div>${mkPayPill(stop.payment)}</div>`:'<div></div>'}
+      ${stop.buyback?`<div class="pill-cell"><div class="field-lbl">Buy back day-olds</div>${mkPill(stop.buyback)}</div>`:'<div></div>'}
+    </div>`;
+  }
+
+  // Notes
+  let notesHTML='';
+  if(stop.notes){
+    notesHTML=`<div class="notes-section">
+      <div class="field-lbl">Notes, quirks &amp; contacts</div>
+      <div class="notes-val">${esc(stop.notes)}</div>
+    </div>`;
+  }
 
   const photoHTML=stop.photoLink
     ?`<div class="photo-footer">📷 Shelving photos: ${esc(stop.photoLink)}</div>`:'';
-  const addrHTML=stop.address?`<div class="address-line">📍 ${esc(stop.address)}</div>`:'';
+
+  const addrHTML=stop.address?`<div>📍 ${esc(stop.address)}</div>`:'';
   const monthsHTML=stop.months?`<div class="months-line">Active: ${esc(stop.months)}</div>`:'';
   const hasSub=stop.address||stop.months;
 
   const div=document.createElement('div');
   div.className=`card ${freqClass}`;
   div.innerHTML=`
-    <div class="band"></div>
-    <div class="card-body">
+    <div class="band">
       <div class="hole"><div class="hole-inner"></div></div>
-      <div class="freq-pill">${esc(stop.freq)}</div>
-      <div class="card-header">
-        <div class="stop-num-badge">${num}</div>
-        <div class="stop-name" style="font-size:${nameSize}">${esc(stop.name)}</div>
+      <div class="band-label">${esc(stop.freq)}${stop.months?' · '+esc(stop.months):''}</div>
+    </div>
+    <div class="card-body">
+      <div class="name-row">
+        <span class="stop-num">${num}.</span>
+        <span class="stop-name" style="font-size:${nameSize}">${esc(stop.name)}</span>
       </div>
       ${hasSub?`<div class="stop-sub">${addrHTML}${monthsHTML}</div>`:'<div style="margin-bottom:12px"></div>'}
-      <div class="card-divider"></div>
-      <div class="fields">${fields.join('')}</div>
+      <div class="divider"></div>
+      ${fullFields}
+      ${pillGrid}
+      ${notesHTML}
       ${photoHTML}
     </div>`;
   return div;
 }
 
-function mkField(icon,label,valHTML){
-  return`<div class="field">
-    <div class="field-icon">${icon}</div>
-    <div class="field-body">
-      <div class="field-label">${label}</div>
-      ${valHTML}
-    </div>
-  </div>`;
-}
-
-function chip(val){
+function mkPill(val){
   const v=String(val).toLowerCase();
   let cls='';
   if(v==='yes')cls='yes';
@@ -392,16 +383,16 @@ function chip(val){
   else if(v.includes('check'))cls='check';
   else if(v.includes('cash'))cls='cash';
   else if(v.includes('invoiced'))cls='invoiced';
-  return`<span class="tag ${cls}">${esc(val)}</span>`;
+  return`<div><span class="pill ${cls}">${esc(val)}</span></div>`;
 }
-function payChip(val){
+function mkPayPill(val){
   const v=String(val).toLowerCase();
   let cls='';
   if(v.includes('cash'))cls='cash';
   else if(v.includes('check'))cls='check';
   else if(v.includes('invoiced'))cls='invoiced';
   else if(v.includes('sometimes'))cls='sometimes';
-  return`<span class="tag ${cls}">${esc(val)}</span>`;
+  return`<div><span class="pill ${cls}">${esc(val)}</span></div>`;
 }
 function esc(s){
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
