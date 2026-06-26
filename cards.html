@@ -5,13 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Orchard Hill Breadworks — Delivery Booklets</title>
 <style>
-/* ── Screen styles ──────────────────────────────────────────────────────── */
+/* ── Screen UI ──────────────────────────────────────────────────────────── */
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Georgia',serif;background:#f0ece8;color:#1a1a1a;min-height:100vh}
-
-.screen{padding:2rem;max-width:700px;margin:0 auto}
+.screen{padding:2rem;max-width:760px;margin:0 auto}
 h1{font-size:1.5rem;font-weight:normal;color:#2c1810;letter-spacing:0.02em;margin-bottom:3px}
-.brand{font-size:11px;color:#8a7060;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:2rem}
+.brand{font-size:11px;color:#8a7060;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:2rem;font-family:sans-serif}
 .controls{background:#fff;border:1px solid #e8e0d8;border-radius:10px;padding:1.5rem;margin-bottom:1.5rem}
 .controls h2{font-size:14px;font-weight:normal;color:#2c1810;margin-bottom:1rem}
 .field-row{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;margin-bottom:1rem}
@@ -24,145 +23,199 @@ h1{font-size:1.5rem;font-weight:normal;color:#2c1810;letter-spacing:0.02em;margi
 .btn-primary:hover{background:#3d2416}
 .btn:disabled{opacity:0.4;cursor:not-allowed}
 .status{font-size:13px;color:#8a7060;font-family:sans-serif;margin-top:8px;min-height:20px}
-.preview-count{font-size:12px;color:#8a7060;font-family:sans-serif;margin-bottom:1rem}
+.print-bar{display:none;margin-bottom:1.5rem;gap:12px;align-items:center;flex-wrap:wrap}
+.print-bar.visible{display:flex}
+.preview-count{font-size:12px;color:#8a7060;font-family:sans-serif}
 
-/* ── Card preview on screen ─────────────────────────────────────────────── */
-.cards-preview{display:flex;flex-wrap:wrap;gap:16px;justify-content:flex-start}
-.card-wrap{position:relative}
-
-/* ── The card itself — 5×5" at 96dpi = 480×480px on screen ─────────────── */
+/* ── Card — half letter landscape: 8.5" × 5.5" ─────────────────────────── */
+/* Screen preview at 90dpi: 765 × 495px */
 .card{
-  width:480px;height:480px;
+  width:765px;
+  height:495px;
   background:#fff;
   border:1px solid #d8d0c8;
   border-radius:4px;
   position:relative;
   overflow:hidden;
   font-family:'Georgia',serif;
-  box-shadow:0 2px 8px rgba(0,0,0,0.08);
-  page-break-after:always;
-  page-break-inside:avoid;
+  box-shadow:0 2px 10px rgba(0,0,0,0.09);
+  margin-bottom:20px;
+  display:flex;
+  flex-direction:row;
 }
 
-/* Frequency color band — top edge */
-.card.year-round .band{background:#2c1810}
-.card.seasonal .band{background:#C87A00}
-.card.occasional .band{background:#7B3FA0}
-.band{height:8px;width:100%;position:absolute;top:0;left:0}
+/* Left accent column */
+.card-accent{
+  width:12px;
+  flex-shrink:0;
+  background:#2c1810;
+}
+.card.seasonal .card-accent{background:#C87A00}
+.card.occasional .card-accent{background:#7B3FA0}
+.card.route-header .card-accent{background:#8a7060}
 
-/* Hole punch indicator */
+/* Main content area */
+.card-body{
+  flex:1;
+  padding:22px 28px 20px 22px;
+  display:flex;
+  flex-direction:column;
+  position:relative;
+  min-width:0;
+}
+
+/* Hole punch */
 .hole{
-  position:absolute;top:18px;left:18px;
-  width:28px;height:28px;
+  position:absolute;
+  top:16px;left:16px;
+  width:32px;height:32px;
   border-radius:50%;
   border:2px dashed #c8b8a8;
   background:#f0ece8;
-  z-index:10;
   display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
 }
-.hole-inner{width:8px;height:8px;border-radius:50%;background:#d8c8b8}
+.hole-inner{width:10px;height:10px;border-radius:50%;background:#d8c8b8}
 
-/* Frequency label pill */
+/* Header row */
+.card-header{
+  display:flex;
+  align-items:flex-start;
+  gap:10px;
+  margin-bottom:14px;
+  padding-left:44px; /* clear hole */
+}
+.stop-num-badge{
+  width:30px;height:30px;
+  border-radius:50%;
+  background:#f0ece8;
+  display:flex;align-items:center;justify-content:center;
+  font-size:13px;font-weight:600;color:#8a7060;
+  font-family:sans-serif;flex-shrink:0;margin-top:2px;
+}
+.header-text{flex:1;min-width:0}
+.stop-name{
+  font-size:26px;font-weight:normal;color:#2c1810;
+  line-height:1.1;letter-spacing:0.01em;
+}
+.stop-meta{
+  display:flex;gap:8px;align-items:center;margin-top:5px;flex-wrap:wrap;
+}
 .freq-pill{
-  position:absolute;top:18px;right:16px;
-  font-size:9px;letter-spacing:0.08em;text-transform:uppercase;
+  font-size:10px;letter-spacing:0.07em;text-transform:uppercase;
   font-family:sans-serif;font-weight:600;
-  padding:3px 8px;border-radius:20px;
+  padding:3px 10px;border-radius:20px;
 }
 .year-round .freq-pill{background:#f0ece8;color:#8a7060}
 .seasonal .freq-pill{background:#FAEEDA;color:#854F0B}
 .occasional .freq-pill{background:#F0E6F8;color:#6B1E9E}
-
-/* Stop number badge */
-.stop-num{
-  position:absolute;top:54px;left:16px;
-  width:24px;height:24px;border-radius:50%;
-  background:#f0ece8;
-  display:flex;align-items:center;justify-content:center;
-  font-size:11px;font-weight:600;color:#8a7060;font-family:sans-serif;
+.address-line{
+  font-size:11px;color:#8a7060;font-family:sans-serif;
 }
-
-/* Stop name */
-.stop-name{
-  position:absolute;top:46px;left:50px;right:16px;
-  font-size:19px;font-weight:normal;color:#2c1810;
-  line-height:1.2;letter-spacing:0.01em;
+.months-line{
+  font-size:11px;color:#854F0B;font-family:sans-serif;
 }
 
 /* Divider */
-.divider{
-  position:absolute;top:88px;left:16px;right:16px;
+.card-divider{
   height:1px;background:#e8e0d8;
+  margin:0 0 14px 0;
 }
 
-/* Address line */
-.address{
-  position:absolute;top:96px;left:16px;right:16px;
-  font-size:10px;color:#8a7060;font-family:sans-serif;
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+/* Two-column field grid */
+.fields-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px 28px;
+  flex:1;
+}
+.fields-grid.single-col{
+  grid-template-columns:1fr;
 }
 
-/* Content area */
-.content{
-  position:absolute;top:114px;left:16px;right:16px;bottom:16px;
-  display:flex;flex-direction:column;gap:0;
-}
-
-/* Field rows */
-.field{display:flex;gap:6px;margin-bottom:5px;align-items:flex-start;font-family:sans-serif}
-.field-icon{font-size:12px;flex-shrink:0;width:16px;text-align:center;margin-top:1px;opacity:0.6}
+/* Individual field */
+.field{display:flex;gap:8px;align-items:flex-start}
+.field-icon{font-size:15px;flex-shrink:0;width:20px;text-align:center;margin-top:1px;opacity:0.55}
 .field-body{flex:1;min-width:0}
-.field-label{font-size:8.5px;text-transform:uppercase;letter-spacing:0.07em;color:#8a7060;line-height:1;margin-bottom:2px}
-.field-val{font-size:11.5px;color:#1a1a1a;line-height:1.3;word-break:break-word}
+.field-label{
+  font-size:9px;text-transform:uppercase;letter-spacing:0.08em;
+  color:#8a7060;line-height:1;margin-bottom:3px;font-family:sans-serif;
+}
+.field-val{font-size:13px;color:#1a1a1a;line-height:1.35;word-break:break-word}
 
-/* Tag row for toggles */
-.tags{display:flex;gap:4px;flex-wrap:wrap;margin-top:2px;margin-bottom:4px}
-.tag{font-size:9.5px;padding:2px 7px;border-radius:12px;font-family:sans-serif;background:#f0ece8;color:#2c1810;border:1px solid #e8e0d8}
+/* Tag chips */
+.tags{display:flex;gap:5px;flex-wrap:wrap;margin-top:2px}
+.tag{
+  font-size:11px;padding:3px 9px;border-radius:12px;
+  font-family:sans-serif;background:#f0ece8;color:#2c1810;border:1px solid #e8e0d8;
+}
 .tag.yes{background:#e6f4ea;color:#1e7e34;border-color:#b8e0c0}
 .tag.no{background:#fef3f0;color:#8a4030;border-color:#f0d0c8}
 .tag.check{background:#FAEEDA;color:#854F0B;border-color:#f0d0a0}
 .tag.cash{background:#e8f4e8;color:#2a6030;border-color:#b0d8b0}
 .tag.invoiced{background:#f0ece8;color:#6b5a4e;border-color:#d8d0c8}
 
-/* Notes */
-.notes-val{font-size:11px;color:#2c1810;line-height:1.4;font-style:italic}
+/* Notes spans full width */
+.field-full{grid-column:1/-1}
 
-/* Season range */
-.season-range{font-size:10px;color:#854F0B;font-family:sans-serif;margin-top:1px}
+/* Notes text */
+.notes-val{font-size:13px;color:#2c1810;line-height:1.45;font-style:italic}
 
-/* Photo link */
-.photo-link{
-  position:absolute;bottom:14px;left:16px;right:16px;
-  font-size:9.5px;font-family:sans-serif;color:#378ADD;
-  border-top:1px solid #e8e0d8;padding-top:6px;
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+/* Photo link footer */
+.photo-footer{
+  margin-top:10px;
+  padding-top:8px;
+  border-top:1px solid #e8e0d8;
+  font-size:10px;font-family:sans-serif;color:#378ADD;
+  grid-column:1/-1;
+  word-break:break-all;
 }
 
 /* Route header card */
 .card.route-header{background:#2c1810}
-.card.route-header .band{background:#8a7060}
-.route-header-content{position:absolute;top:0;left:0;right:0;bottom:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem}
-.route-header-day{font-size:13px;color:#c8a878;letter-spacing:0.12em;text-transform:uppercase;font-family:sans-serif;margin-bottom:8px}
-.route-header-route{font-size:42px;font-weight:normal;color:#fff;letter-spacing:0.02em;margin-bottom:8px}
-.route-header-count{font-size:13px;color:#8a7060;font-family:sans-serif}
-.route-header-brand{position:absolute;bottom:20px;font-size:10px;color:#6b5a4e;letter-spacing:0.1em;text-transform:uppercase;font-family:sans-serif}
+.route-header .card-body{
+  justify-content:center;
+  align-items:flex-start;
+  padding-left:32px;
+}
+.route-header-day{
+  font-size:13px;color:#c8a878;letter-spacing:0.14em;
+  text-transform:uppercase;font-family:sans-serif;margin-bottom:10px;
+}
+.route-header-route{
+  font-size:52px;font-weight:normal;color:#fff;
+  letter-spacing:0.01em;line-height:1;margin-bottom:10px;
+}
+.route-header-count{font-size:14px;color:#8a7060;font-family:sans-serif}
+.route-header-brand{
+  position:absolute;bottom:20px;right:24px;
+  font-size:10px;color:#4a3828;letter-spacing:0.1em;
+  text-transform:uppercase;font-family:sans-serif;
+}
 
 /* ── Print styles ───────────────────────────────────────────────────────── */
 @media print {
   body{background:#fff;padding:0;margin:0}
   .screen-only{display:none!important}
-  .screen{padding:0;max-width:none}
-  .cards-preview{display:block;gap:0}
-  .card-wrap{display:block;margin:0;padding:0}
+  .screen{padding:0;max-width:none;margin:0}
   .card{
-    width:5in;height:5in;
+    width:8.5in;
+    height:5.5in;
     border:none;border-radius:0;
     box-shadow:none;
+    margin:0;padding:0;
     page-break-after:always;
     page-break-inside:avoid;
-    margin:0;padding:0;
+    display:flex;
   }
-  @page{size:5in 5in;margin:0}
+  .card-accent{width:14px}
+  .card-body{padding:28px 36px 24px 28px}
+  .stop-name{font-size:32px}
+  .field-val{font-size:15px}
+  .field-label{font-size:10px}
+  .tag{font-size:12px;padding:4px 10px}
+  .notes-val{font-size:15px}
+  @page{size:8.5in 5.5in landscape;margin:0}
 }
 </style>
 </head>
@@ -186,7 +239,7 @@ h1{font-size:1.5rem;font-weight:normal;color:#2c1810;letter-spacing:0.02em;margi
       </div>
       <div class="field-group">
         <label>Route</label>
-        <select id="sel-route" disabled>
+        <select id="sel-route" disabled onchange="onRouteChange()">
           <option value="">— select day first —</option>
         </select>
       </div>
@@ -195,12 +248,12 @@ h1{font-size:1.5rem;font-weight:normal;color:#2c1810;letter-spacing:0.02em;margi
     <div class="status" id="status"></div>
   </div>
 
-  <div id="print-bar" class="screen-only" style="display:none;margin-bottom:1rem;display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+  <div id="print-bar" class="print-bar screen-only">
     <button class="btn btn-primary" onclick="window.print()">🖨 Print booklet</button>
-    <span id="preview-count" class="preview-count"></span>
+    <span class="preview-count" id="preview-count"></span>
   </div>
 
-  <div id="cards-container" class="cards-preview"></div>
+  <div id="cards-container"></div>
 </div>
 
 <script>
@@ -216,48 +269,44 @@ const ROUTE_NUMBERS={
 function onDayChange(){
   const day=document.getElementById('sel-day').value;
   const routeSel=document.getElementById('sel-route');
-  const genBtn=document.getElementById('gen-btn');
+  document.getElementById('gen-btn').disabled=true;
   routeSel.innerHTML='<option value="">— select —</option>';
-  if(!day){routeSel.disabled=true;genBtn.disabled=true;return;}
+  if(!day){routeSel.disabled=true;return;}
   (ROUTE_NUMBERS[day]||[]).forEach(r=>{
-    const o=document.createElement('option');o.value=r;o.textContent=r==='PU'?'Pickups':'Route '+r;routeSel.appendChild(o);
+    const o=document.createElement('option');o.value=r;
+    o.textContent=r==='PU'?'Pickups':'Route '+r;routeSel.appendChild(o);
   });
-  routeSel.disabled=false;genBtn.disabled=false;
+  routeSel.disabled=false;
 }
-
-document.getElementById('sel-route').addEventListener('change',()=>{
+function onRouteChange(){
   document.getElementById('gen-btn').disabled=!document.getElementById('sel-route').value;
-});
+}
 
 async function generateBooklet(){
   const day=document.getElementById('sel-day').value;
   const route=document.getElementById('sel-route').value;
   if(!day||!route)return;
-  setStatus('Fetching route data…');
+  setStatus('Fetching route data from Google Sheets…');
   document.getElementById('cards-container').innerHTML='';
-  document.getElementById('print-bar').style.display='none';
+  document.getElementById('print-bar').classList.remove('visible');
 
   const data=await fetchRoute(day,route);
-  if(!data){setStatus('Could not load route data. Check that this route has been submitted via the survey.');return;}
-
-  const {stops}=data;
-  const activeStops=stops.filter(s=>!s.notOnRoute);
-  if(!activeStops.length){setStatus('No active stops found for this route.');return;}
+  if(!data){setStatus('Could not load route data. Make sure this route has been submitted via the survey.');return;}
+  const active=data.stops.filter(s=>!s.notOnRoute);
+  if(!active.length){setStatus('No active stops found for this route.');return;}
 
   setStatus('');
   const container=document.getElementById('cards-container');
-
-  // Route header card
   const label=route==='PU'?'Pickups':'Route '+route;
-  container.appendChild(makeHeaderCard(day,label,activeStops.length));
 
+  // Cover card
+  container.appendChild(makeHeaderCard(day,label,active.length));
   // Stop cards
-  activeStops.forEach((stop,i)=>{
-    container.appendChild(makeStopCard(stop,i+1));
-  });
+  active.forEach((stop,i)=>container.appendChild(makeStopCard(stop,i+1)));
 
-  document.getElementById('preview-count').textContent=activeStops.length+' stops · '+activeStops.length+1+' cards total (including cover)';
-  document.getElementById('print-bar').style.display='flex';
+  const total=active.length+1;
+  document.getElementById('preview-count').textContent=`${active.length} stops · ${total} cards total`;
+  document.getElementById('print-bar').classList.add('visible');
 }
 
 async function fetchRoute(day,route){
@@ -270,9 +319,8 @@ async function fetchRoute(day,route){
     const stops=[];
     for(let i=2;i<rows.length;i++){
       const r=rows[i];const stopName=r[1]||'';if(!stopName)continue;
-      // Detect old vs new column format
-      const OLD_TYPE_VALS=['Regular delivery','— not on route —','Shipped','Pickup'];
-      const isOld=OLD_TYPE_VALS.includes(r[2]);
+      const OLD=['Regular delivery','— not on route —','Shipped','Pickup'];
+      const isOld=OLD.includes(r[2]);
       let address,type,freq,months,parking,door,stocked,signin,payment,buyback,notes,puWhat,flagged,photoLink;
       if(isOld){
         address='';type=r[3]||'';freq=r[4]||'Year-round';months=r[5]||'';
@@ -285,118 +333,124 @@ async function fetchRoute(day,route){
         payment=r[10]||'';buyback=r[11]||'';notes=r[12]||'';puWhat=r[13]||'';
         flagged=r[14]||'';photoLink=r[16]||'';
       }
-      stops.push({
-        name:stopName,address,type,freq,months,parking,door,
-        stocked,signin,payment,buyback,notes,puWhat,photoLink,
-        notOnRoute:String(flagged).includes('remove')
-      });
+      stops.push({name:stopName,address,type,freq,months,parking,door,stocked,signin,payment,buyback,notes,puWhat,photoLink,notOnRoute:String(flagged).includes('remove')});
     }
     return{stops};
   }catch(e){return null;}
 }
 
 function makeHeaderCard(day,label,count){
-  const wrap=document.createElement('div');wrap.className='card-wrap';
-  wrap.innerHTML=`
-    <div class="card route-header">
-      <div class="band"></div>
-      <div class="route-header-content">
-        <div class="route-header-day">${day}</div>
-        <div class="route-header-route">${label}</div>
-        <div class="route-header-count">${count} stops</div>
-      </div>
+  const div=document.createElement('div');
+  div.className='card route-header';
+  div.innerHTML=`
+    <div class="card-accent"></div>
+    <div class="card-body">
+      <div class="route-header-day">${day}</div>
+      <div class="route-header-route">${esc(label)}</div>
+      <div class="route-header-count">${count} stops</div>
       <div class="route-header-brand">Orchard Hill Breadworks</div>
     </div>`;
-  return wrap;
+  return div;
 }
 
 function makeStopCard(stop,num){
-  const wrap=document.createElement('div');wrap.className='card-wrap';
   const freqClass=stop.freq==='Seasonal'?'seasonal':stop.freq==='Occasional'?'occasional':'year-round';
-  const freqLabel=stop.freq==='Year-round'?'Year-round':stop.freq;
+  const nameSize=stop.name.length>30?'20px':stop.name.length>22?'23px':'26px';
 
-  // Build fields
-  let fields='';
+  // Build fields array
+  const fields=[];
 
   if(stop.parking){
-    fields+=field('🅿','Where to park',escHtml(stop.parking));
+    fields.push(field('🅿','Where to park',`<div class="field-val">${esc(stop.parking)}</div>`));
   }
   if(stop.door){
-    fields+=field('🚪','Which door',escHtml(stop.door));
+    fields.push(field('🚪','Which door',`<div class="field-val">${esc(stop.door)}</div>`));
   }
-
-  // Toggle tags row
-  const tags=[];
-  if(stop.stocked)tags.push(tagHTML('Stock shelves',stop.stocked));
-  if(stop.signin)tags.push(tagHTML('Manager sign-in',stop.signin));
-  if(tags.length){
-    fields+=`<div class="field"><div class="field-icon">📋</div><div class="field-body"><div class="tags">${tags.join('')}</div></div></div>`;
+  if(stop.stocked){
+    fields.push(field('📦','Stock shelves',`<div class="tags">${chip(stop.stocked)}</div>`));
   }
-
+  if(stop.signin){
+    fields.push(field('✍️','Manager sign-in',`<div class="tags">${chip(stop.signin)}</div>`));
+  }
   if(stop.payment){
-    fields+=`<div class="field"><div class="field-icon">💵</div><div class="field-body"><div class="field-label">Payment</div><div class="tags">${payTag(stop.payment)}</div></div></div>`;
+    fields.push(field('💵','Payment',`<div class="tags">${payChip(stop.payment)}</div>`));
   }
   if(stop.buyback){
-    fields+=`<div class="field"><div class="field-icon">↩</div><div class="field-body"><div class="field-label">Buy back day-olds</div><div class="tags">${tagHTML('',stop.buyback)}</div></div></div>`;
+    fields.push(field('↩','Buy back day-olds',`<div class="tags">${chip(stop.buyback)}</div>`));
   }
   if(stop.puWhat){
-    fields+=field('📦','Pick up',escHtml(stop.puWhat));
+    fields.push(field('📥','Pick up',`<div class="field-val">${esc(stop.puWhat)}</div>`));
   }
+
+  // Notes spans full width
+  let notesHTML='';
   if(stop.notes){
-    fields+=`<div class="field"><div class="field-icon">📝</div><div class="field-body"><div class="field-label">Notes</div><div class="notes-val">${escHtml(stop.notes)}</div></div></div>`;
+    notesHTML=`<div class="field field-full">
+      <div class="field-icon">📝</div>
+      <div class="field-body">
+        <div class="field-label">Notes, quirks & contacts</div>
+        <div class="notes-val">${esc(stop.notes)}</div>
+      </div>
+    </div>`;
   }
 
-  const photoSection=stop.photoLink?`<div class="photo-link">📷 Shelving photos: ${escHtml(stop.photoLink)}</div>`:'';
-  const monthsLine=stop.months?`<div class="season-range">Active: ${escHtml(stop.months)}</div>`:'';
-  const addressLine=stop.address?`<div class="address">📍 ${escHtml(stop.address)}</div>`:'';
-  // Shrink stop name font if long
-  const nameSize=stop.name.length>28?'14px':stop.name.length>20?'16px':'19px';
+  // Photo footer
+  const photoHTML=stop.photoLink?`<div class="photo-footer field-full">📷 Shelving photos: ${esc(stop.photoLink)}</div>`:'';
 
-  wrap.innerHTML=`
-    <div class="card ${freqClass}">
-      <div class="band"></div>
+  // Address + meta
+  const addrHTML=stop.address?`<div class="address-line">📍 ${esc(stop.address)}</div>`:'';
+  const monthsHTML=stop.months?`<div class="months-line">Active: ${esc(stop.months)}</div>`:'';
+
+  const div=document.createElement('div');
+  div.className=`card ${freqClass}`;
+  div.innerHTML=`
+    <div class="card-accent"></div>
+    <div class="card-body">
       <div class="hole"><div class="hole-inner"></div></div>
-      <div class="freq-pill">${freqLabel}${monthsLine}</div>
-      <div class="stop-num">${num}</div>
-      <div class="stop-name" style="font-size:${nameSize}">${escHtml(stop.name)}</div>
-      <div class="divider"></div>
-      ${addressLine}
-      <div class="content" style="${stop.address?'top:114px':'top:96px'}">${fields}</div>
-      ${photoSection}
+      <div class="card-header">
+        <div class="stop-num-badge">${num}</div>
+        <div class="header-text">
+          <div class="stop-name" style="font-size:${nameSize}">${esc(stop.name)}</div>
+          <div class="stop-meta">
+            <span class="freq-pill">${esc(stop.freq)}</span>
+            ${addrHTML}${monthsHTML}
+          </div>
+        </div>
+      </div>
+      <div class="card-divider"></div>
+      <div class="fields-grid">
+        ${fields.join('')}
+        ${notesHTML}
+        ${photoHTML}
+      </div>
     </div>`;
-  return wrap;
+  return div;
 }
 
-function field(icon,label,val){
-  return`<div class="field"><div class="field-icon">${icon}</div><div class="field-body"><div class="field-label">${label}</div><div class="field-val">${val}</div></div></div>`;
+function field(icon,label,valHTML){
+  return`<div class="field">
+    <div class="field-icon">${icon}</div>
+    <div class="field-body">
+      <div class="field-label">${label}</div>
+      ${valHTML}
+    </div>
+  </div>`;
 }
 
-function tagHTML(label,val){
+function chip(val){
   const v=String(val).toLowerCase();
   let cls='';
-  if(v==='yes')cls='yes';
-  else if(v==='no')cls='no';
-  else if(v.includes('check'))cls='check';
-  else if(v.includes('cash'))cls='cash';
-  else if(v.includes('invoiced'))cls='invoiced';
-  const prefix=label?`<span style="font-size:8px;opacity:0.7;margin-right:2px">${label}:</span>`:'';
-  return`<span class="tag ${cls}">${prefix}${escHtml(val)}</span>`;
+  if(v==='yes')cls='yes';else if(v==='no')cls='no';else if(v.includes('check'))cls='check';else if(v.includes('cash'))cls='cash';else if(v.includes('invoiced'))cls='invoiced';
+  return`<span class="tag ${cls}">${esc(val)}</span>`;
 }
-
-function payTag(val){
+function payChip(val){
   const v=String(val).toLowerCase();
   let cls='';
-  if(v.includes('cash'))cls='cash';
-  else if(v.includes('check'))cls='check';
-  else if(v.includes('invoiced'))cls='invoiced';
-  return`<span class="tag ${cls}">${escHtml(val)}</span>`;
+  if(v.includes('cash'))cls='cash';else if(v.includes('check'))cls='check';else if(v.includes('invoiced'))cls='invoiced';
+  return`<span class="tag ${cls}">${esc(val)}</span>`;
 }
-
-function escHtml(s){
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-
-function setStatus(msg){document.getElementById('status').textContent=msg;}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function setStatus(m){document.getElementById('status').textContent=m;}
 </script>
 </body>
 </html>
